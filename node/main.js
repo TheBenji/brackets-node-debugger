@@ -35,6 +35,26 @@ function stepContinue() {
 	debug.sendCommand(obj);
 }
 
+function setBreakpoint(file, line) {
+    var obj = {};
+    obj.command = 'setbreakpoint';
+    obj.arguments = {
+        'type' : 'script',
+        'target' : file,
+        'line': line
+    };
+
+    debug.sendCommand(obj);
+}
+
+function removeBreakpoint(breakpoint) {
+    var obj = {};
+    obj.command = 'clearbreakpoint';
+    obj.arguments = { 'breakpoint' : breakpoint };
+
+    debug.sendCommand(obj);
+}
+
 function evaluate(com) {
 	var obj = {};
 	obj.command = 'evaluate';
@@ -44,6 +64,7 @@ function evaluate(com) {
 }
 
 function start() {
+    //TODO: Port should be configurable
 	debug = new debugConnector();
 	
 	debug.on('connect', function() {
@@ -61,6 +82,14 @@ function start() {
 	debug.on('eval', function(body) {
 		_domainManager.emitEvent("brackets-node-debugger", "eval", body);
 	});
+
+    debug.on('setBreakpoint', function(args) {
+        _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", args);
+    });
+
+    debug.on('clearBreakpoint', function(args) {
+        _domainManager.emitEvent("brackets-node-debugger", "clearBreakpoint", args);
+    });
 }
 
 function init(domainManager) {
@@ -124,6 +153,38 @@ function init(domainManager) {
 		}]
 	);
 	
+
+	_domainManager.registerCommand(
+		"brackets-node-debugger",
+		"setBreakpoint",
+		setBreakpoint,
+		false,
+		"Set a new Breakpoint",
+		[{
+			name: "file",
+			type: "string",
+			description: "The path to the file where the breakpoint is to set"
+		},
+        {
+			name: "line",
+			type: "number",
+			description: "The line number where the breakpoint is to set"
+		}]
+	);
+
+	_domainManager.registerCommand(
+		"brackets-node-debugger",
+		"removeBreakpoint",
+		removeBreakpoint,
+		false,
+		"Remove a Breakpoint",
+		[{
+			name: "breakpoint",
+			type: "number",
+			description: "The id from the breakpoint to remove"
+		}]
+	);
+
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"connect"
@@ -151,6 +212,26 @@ function init(domainManager) {
 			name: "Body",
 			type: "object",
 			description: "The body V8 sends us as response"
+		}]
+	);
+
+	_domainManager.registerEvent(
+		"brackets-node-debugger",
+		"setBreakpoint",
+		[{
+			name: "args",
+			type: "object",
+			description: "The Arguments V8 sends us as response"
+		}]
+	);
+
+	_domainManager.registerEvent(
+		"brackets-node-debugger",
+		"clearBreakpoint",
+		[{
+			name: "args",
+			type: "object",
+			description: "The Arguments V8 sends us as response"
 		}]
 	);
 }

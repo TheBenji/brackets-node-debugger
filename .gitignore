@@ -20,5 +20,4 @@ Thumbs.db
 stories.md
 
 dump.rdb
-*.sublime-project
-*.sublime-workspace
+.todo

@@ -20,7 +20,6 @@ define(function (require, exports, module) {
     ExtensionUtils.loadStyleSheet(module, "assets/style.css");
 	
 	var breakpointGutters = require('./breakpointGutter');
-	console.log('foo!!');
 	
 	var logContainerHTML = require("text!assets/debuggerLog.html");
 	
@@ -29,7 +28,7 @@ define(function (require, exports, module) {
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 	
 	AppInit.appReady(function() {
-		breakpointGutters.init();
+		breakpointGutters.init(nodeDebuggerDomain);
 		//Adds a new line to the log within brackets
 		function addLog(msg) {
 			var h = '<div class="brackets-node-debugger-log">' + msg + '</div>';
@@ -68,7 +67,16 @@ define(function (require, exports, module) {
 			console.log(body);
 			addLog('<< ' + body.value);
 		});
+
+        $(nodeDebuggerDomain).on("setBreakpoint", function(e, bp) {
+            breakpointGutters.addBreakpoint(bp);
+        });
 	
+        /* NOTE We just assume for now that this was successfull...
+        $(nodeDebuggerDomain).on("clearBreakpoint", function(e, bp) {
+            breakpointGutters.clearBreakpoint(bp);
+        });
+        */
 		
 		//UI Actions
 		$logPanel.find('.close').on('click', function() {

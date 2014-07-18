@@ -8,13 +8,17 @@
 define(function (require, exports) {
     "use strict";
 
-	var EditorManager = brackets.getModule("editor/EditorManager");
+	var _ = brackets.getModule("thirdparty/lodash"),
+    EditorManager = brackets.getModule("editor/EditorManager"),
+        DocumentManager = brackets.getModule("document/DocumentManager");
 	
 	var cm = null,
+        cd = null,
+        breakpoints = [],
+        _nodeDebuggerDomain,
 		gutterName = 'node-debugger-bp-gutter';
 	
 	function _updateCm() {
-		console.log('update CM');
 		var editor = EditorManager.getActiveEditor();
 		
         if (!editor || !editor._codeMirror) {
@@ -22,11 +26,16 @@ define(function (require, exports) {
         }
 		
 		cm = editor._codeMirror;
+
+        //Get the path to the current file as well
+        var _cd = DocumentManager.getCurrentDocument();
+        if(_cd) {
+            cd = _cd.file.fullPath;
+        }
 		
 	}
 	
 	function _updateGutters() {
-		console.log('update gutters');
 		if (!cm) { return; }
 
         var gutters = cm.getOption("gutters").slice(0);
@@ -38,30 +47,44 @@ define(function (require, exports) {
 	}
 	
 	function gutterClick(cm, n, gutterId) {
-		console.log('Gutter clicked!, gutterId: ' + gutterId + 'on line: ' + n);
 		if (gutterId !== gutterName && gutterId !== "CodeMirror-linenumbers") {
             return;
         }
-		
-		var $marker;
-		
+
 		var info = cm.lineInfo(n);
 		
 		if(info.gutterMarkers && info.gutterMarkers[gutterName]) {
-			$marker = [null];
+            var bp = _.find(breakpoints, function(obj) {
+                return obj.line === n;
+            });
+            _nodeDebuggerDomain.exec("removeBreakpoint", bp.breakpoint);
+            cm.setGutterMarker( bp.line, gutterName, null );
 		} else {
-			$marker = $("<div>")
-					.addClass('breakpoint-gutter')
-					.html("●");	
+            _nodeDebuggerDomain.exec("setBreakpoint", cd, n);
 		}
-		
-		cm.setGutterMarker( n, gutterName, $marker[0] );
 	}
 	
-	function init() {
+	function init(nodeDebuggerDomain) {
+        _nodeDebuggerDomain = nodeDebuggerDomain;
 		_updateCm();
 		_updateGutters();	
 	}
+
+    function addBreakpoint(bp) {
+        breakpoints.push(bp);
+
+        var $marker = $("<div>")
+                .addClass('breakpoint-gutter')
+                .html("●");
+
+        cm.setGutterMarker( bp.line, gutterName, $marker[0] );
+    }
+
+    $(DocumentManager).on("currentDocumentChange", function (evt, currentDocument, previousDocument) {
+        _updateCm();
+        _updateGutters();
+    });
 	
 	exports.init = init;
+    exports.addBreakpoint = addBreakpoint;
 });

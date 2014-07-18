@@ -12,6 +12,7 @@ var debugConnector = function() {
 	this.connected = false;
 	
 	this._seq = 0;
+    this._waitingForResponse = {};
 	
 	//Create connection to V8 Debugger
 	this.socket = net.createConnection(self.port, self.host);
@@ -34,6 +35,7 @@ var debugConnector = function() {
 		try {
 			var body = JSON.parse( data.toString() );
 			console.log('Seq %d Event %s', body.seq, body.type);
+            //console.log(body);
 			
 			if(body.event === 'break') {
 				self.emit('break', body.body);	
@@ -41,8 +43,18 @@ var debugConnector = function() {
 			
 			if(body.type === 'response') {
 				if(body.command === 'evaluate') {
-					self.emit('eval', body.body)
-				}	
+					self.emit('eval', body.body);
+				}
+
+                if(body.command === 'setbreakpoint') {
+                    self.emit('setBreakpoint', body.body);
+                }
+
+                if(body.command === 'clearbreakpoint') {
+                    self.emit('clearBreakpoint', body.body);
+                }
+
+                delete self._waitingForResponse[body.request_seq];
 			}
 		} catch(e) {
 			//Just ignore it for now	
@@ -63,6 +75,8 @@ debugConnector.prototype.sendCommand = function(obj) {
 		console.log(obj);
 
 		var str = JSON.stringify(obj);
+
+        self._waitingForResponse[obj.seq] = obj;
 		self.socket.write( "Content-Length:" + str.length + "\r\n\r\n" + str);
 	} else {
 		console.error('[Node-Debugger] Can\'t send command, not connected!');	
