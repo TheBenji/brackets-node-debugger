@@ -17,6 +17,11 @@ define(function (require, exports, module) {
         NodeDomain = brackets.getModule("utils/NodeDomain"),
         ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
 	
+    ExtensionUtils.loadStyleSheet(module, "assets/style.css");
+	
+	var breakpointGutters = require('./breakpointGutter');
+	console.log('foo!!');
+	
 	var logContainerHTML = require("text!debuggerLog.html");
 	
 	var $logPanel = $(null);
@@ -24,6 +29,7 @@ define(function (require, exports, module) {
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 	
 	AppInit.appReady(function() {
+		breakpointGutters.init();
 		//Adds a new line to the log within brackets
 		function addLog(msg) {
 			var h = '<div class="brackets-node-debugger-log">' + msg + '</div>';
