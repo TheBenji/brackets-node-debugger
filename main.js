@@ -45,7 +45,8 @@ define(function (require, exports, module) {
 		});
 		
 		$(nodeDebuggerDomain).on("break", function(e, body) {
-			var docPath = body.script.name;
+            //Fixme: Just to support windows, however this most likely won't work in every case
+			var docPath = body.script.name.replace('\\', '/');
 			
 			console.log(body);
 			
