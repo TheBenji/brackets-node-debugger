@@ -22,7 +22,7 @@ define(function (require, exports, module) {
 	var breakpointGutters = require('./breakpointGutter');
 	console.log('foo!!');
 	
-	var logContainerHTML = require("text!debuggerLog.html");
+	var logContainerHTML = require("text!assets/debuggerLog.html");
 	
 	var $logPanel = $(null);
 	
