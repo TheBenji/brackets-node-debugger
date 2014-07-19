@@ -22,3 +22,7 @@
     float: left;
     color: #822;
 }
+
+.node-debugger-highlight {
+     background-color: rgba(130, 2, 0, 0.1);
+}

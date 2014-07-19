@@ -25,7 +25,9 @@ define(function (require, exports, module) {
 	
 	var $logPanel = $(null),
         $debuggerContent = $(null),
-        $debuggerInput = $(null);
+        $debuggerInput = $(null),
+        activeLine = null,
+        highlightCm = null;
 	
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 	
@@ -57,16 +59,23 @@ define(function (require, exports, module) {
             //Fixme: Just to support windows, however this most likely won't work in every case
 			var docPath = body.script.name.replace(/\\/g, '/');
 			
-			console.log(body);
+			//console.log(body);
+
+			//addLog("Break on: " + docPath + " : " + body.sourceLine);
 			
-			addLog("Break on: " + docPath + " : " + body.sourceLine);
-			//Make sure the panel is open
+            //Make sure the panel is open
 			panel.setVisible(true);
 			
 			DocumentManager.getDocumentForPath(docPath)
 				.done(function(doc) {
 					DocumentManager.setCurrentDocument( doc );
-					Editor.getActiveEditor().setCursorPos( body.sourceLine - 1 );
+                    var ae = Editor.getActiveEditor();
+                    activeLine = body.sourceLine;
+					ae.setCursorPos( activeLine );
+                    //Highlight the line
+                    highlightCm = ae._codeMirror;
+                    activeLine = highlightCm.addLineClass(activeLine, 'node-debugger-highlight-background', 'node-debugger-highlight');
+
 				}).fail(function(err) {
 					console.log('[Node Debugger] Failed to open Document: ' + docPath);
 				});
@@ -100,18 +109,22 @@ define(function (require, exports, module) {
 		
 		$logPanel.find('.next').on('click', function() {
 			nodeDebuggerDomain.exec('stepNext');
+            debuggerContinue();
 		});
 		
 		$logPanel.find('.in').on('click', function() {
 			nodeDebuggerDomain.exec('stepIn');
+            debuggerContinue();
 		});
 		
 		$logPanel.find('.out').on('click', function() {
 			nodeDebuggerDomain.exec('stepOut');
+            debuggerContinue();
 		});
 		
 		$logPanel.find('.continue').on('click', function() {
 			nodeDebuggerDomain.exec('continue');
+            debuggerContinue();
 		});
 		
 		$debuggerInput.on('keypress', function(e) {
@@ -133,6 +146,14 @@ define(function (require, exports, module) {
         panel.setVisible(!panel.isVisible());
     }
     
+    function debuggerContinue() {
+        if(highlightCm) {
+            highlightCm.removeLineClass( activeLine , 'node-debugger-highlight-background', 'node-debugger-highlight');
+            highlightCm = null;
+            activeLine = null;
+        }
+    }
+
     var MY_COMMAND_ID = "brackets-node-debugger.log";
     CommandManager.register("Node.js Debugger", MY_COMMAND_ID, toggleLog);
 
