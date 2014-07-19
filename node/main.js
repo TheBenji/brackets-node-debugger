@@ -50,6 +50,10 @@ function setBreakpoint(file, line) {
         'line': line
     };
 
+    obj.callback = function(c, body) {
+      _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", body);
+    };
+
     debug.sendCommand(obj);
 }
 
@@ -58,6 +62,10 @@ function removeBreakpoint(breakpoint) {
     obj.command = 'clearbreakpoint';
     obj.arguments = { 'breakpoint' : breakpoint };
 
+    obj.callback = function(c, body) {
+      _domainManager.emitEvent("brackets-node-debugger", "clearBreakpoint", body);
+    };
+
     debug.sendCommand(obj);
 }
 
@@ -65,8 +73,36 @@ function evaluate(com) {
 	var obj = {};
 	obj.command = 'evaluate';
 	obj.arguments = { 'expression' : com };
+
+    obj.callback = function(c, body) {
+        //If this is from type object get the properties as well
+        if(body.type === 'object' && body.properties) {
+            //Get all handles and send lookup
+            var handles = [];
+            body.properties.forEach(function(h) {
+                handles.push(h.ref);
+            });
+            lookup(handles, function(cmd, b) {
+                //Add the lookup stuff and emit the event
+                body.lookup = b;
+                _domainManager.emitEvent("brackets-node-debugger", "eval", body);
+            });
+        } else {
+            _domainManager.emitEvent("brackets-node-debugger", "eval", body);
+        }
+    };
 	
 	debug.sendCommand(obj);
+}
+
+function lookup(handles, callback) {
+    var obj = {};
+    obj.command = 'lookup';
+    obj.arguments = { 'handles': handles };
+
+    obj.callback = callback;
+
+    debug.sendCommand(obj);
 }
 
 function start() {
@@ -88,18 +124,6 @@ function start() {
 	debug.on('break', function(body) {
 		_domainManager.emitEvent("brackets-node-debugger", "break", body);
 	});
-	
-	debug.on('eval', function(body) {
-		_domainManager.emitEvent("brackets-node-debugger", "eval", body);
-	});
-
-    debug.on('setBreakpoint', function(args) {
-        _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", args);
-    });
-
-    debug.on('clearBreakpoint', function(args) {
-        _domainManager.emitEvent("brackets-node-debugger", "clearBreakpoint", args);
-    });
 }
 
 function init(domainManager) {

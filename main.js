@@ -12,6 +12,7 @@ define(function (require, exports, module) {
 		DocumentManager = brackets.getModule("document/DocumentManager"),
 		Editor = brackets.getModule("editor/EditorManager"),
         Menus          = brackets.getModule("command/Menus"),
+        KeyBindingManager  = brackets.getModule("command/KeyBindingManager"),
 		AppInit        = brackets.getModule("utils/AppInit"),
 		PanelManager = brackets.getModule("view/PanelManager"),
         NodeDomain = brackets.getModule("utils/NodeDomain"),
@@ -20,13 +21,12 @@ define(function (require, exports, module) {
     ExtensionUtils.loadStyleSheet(module, "assets/style.css");
     ExtensionUtils.loadStyleSheet(module, "assets/ionicons.css");
 	
-	var breakpointGutters = require('./breakpointGutter');
+	var breakpointGutters = require('./src/breakpointGutter'),
+        nodeDebuggerPanel = require('./src/nodeDebuggerPanel');
 	
 	var logContainerHTML = require("text!assets/debuggerLog.html");
 	
 	var $logPanel = $(null),
-        $debuggerContent = $(null),
-        $debuggerInput = $(null),
         activeLine = null,
         highlightCm = null;
 	
@@ -34,21 +34,10 @@ define(function (require, exports, module) {
 	
 	AppInit.appReady(function() {
 		breakpointGutters.init(nodeDebuggerDomain);
-		//Adds a new line to the log within brackets
-		function addLog(msg) {
-			//var h = '<div class="brackets-node-debugger-log">' + msg + '</div>';
-            var $h = $("<div>")
-                .addClass('brackets-node-debugger-log')
-                .text(msg);
-			$h.insertBefore($debuggerInput);
-            $debuggerInput.focus();
-            //Scroll to the bottom
-            $debuggerContent.scrollTop( 9999999999999 );
-		}
-
+        nodeDebuggerPanel.init(nodeDebuggerDomain, $logPanel);
 
 		$(nodeDebuggerDomain).on("connect", function() {
-			addLog('Debugger connected');
+			nodeDebuggerPanel.log( $('<span>').text('Debugger connected') );
             $logPanel.find('.activate').addClass('ion-ios7-checkmark')
                                     .removeClass('ion-ios7-close');
             $logPanel.find('a.inactive').addClass('active').removeClass('inactive');
@@ -56,11 +45,18 @@ define(function (require, exports, module) {
 
 		$(nodeDebuggerDomain).on("close", function() {
             breakpointGutters.removeAllBreakpoints();
-			addLog('Debugger disconnected');
+			nodeDebuggerPanel.log( $('<span>').text('Debugger disconnected') );
 
             $logPanel.find('.activate').addClass('ion-ios7-close')
                                     .removeClass('ion-ios7-checkmark');
             $logPanel.find('a.active').addClass('inactive').removeClass('active');
+
+            //remove highlight
+            if(highlightCm) {
+                highlightCm.removeLineClass( activeLine , 'node-debugger-highlight-background', 'node-debugger-highlight');
+                highlightCm = null;
+                activeLine = null;
+            }
 		});
 		
 		$(nodeDebuggerDomain).on("break", function(e, body) {
@@ -69,7 +65,6 @@ define(function (require, exports, module) {
 			
 			//console.log(body);
 
-			//addLog("Break on: " + docPath + " : " + body.sourceLine);
 			
             //Make sure the panel is open
 			panel.setVisible(true);
@@ -92,9 +87,24 @@ define(function (require, exports, module) {
 		});
 		
 		$(nodeDebuggerDomain).on("eval", function(e, body) {
-			//console.log(body);
-			addLog('<< ' + body.text);
+			console.log(body);
+            var $wrapper = $('<span>').addClass('wrapper');
+            $('<span>').addClass('type').text(body.type).appendTo($wrapper);
+            var $output = $('<span>');
+
+            if(body.type === 'object' && body.properties && body.lookup) {
+                var o = {};
+                body.properties.forEach(function(p) {
+                    o[p.name] = body.lookup[p.ref].text;
+                });
+                $output.text( JSON.stringify(o) );
+            } else {
+                $output.text( body.text );
+            }
+            $output.appendTo($wrapper);
+			nodeDebuggerPanel.log($wrapper);
 		});
+
 
         $(nodeDebuggerDomain).on("setBreakpoint", function(e, bp) {
             breakpointGutters.addBreakpoint(bp);
@@ -135,19 +145,6 @@ define(function (require, exports, module) {
 			nodeDebuggerDomain.exec('continue');
             debuggerContinue();
 		});
-		
-		$debuggerInput.on('keypress', function(e) {
-            if(e.keyCode == 13) {
-                var com = $debuggerInput.html();
-
-                if(com.length > 0) {
-                    addLog('>> ' + com);
-                    nodeDebuggerDomain.exec('eval', com);
-                    //reset the input field
-                    $debuggerInput.html('');
-                }
-            }
-		});
 	});
 
     // Function to run when the menu item is clicked
@@ -171,14 +168,9 @@ define(function (require, exports, module) {
     // The label of the menu item is the name we gave the command (see above)
     var menu = Menus.getMenu('debug-menu');
     menu.addMenuItem(MY_COMMAND_ID);
+    KeyBindingManager.addBinding(MY_COMMAND_ID, "Ctrl-Shift-I");
 	
 	
 	var panel = PanelManager.createBottomPanel("brackets-node-debugger.log", $(logContainerHTML));
 	$logPanel = panel.$panel;
-    $debuggerContent = $logPanel.find('#brackets-node-debugger-content');
-    $debuggerInput = $logPanel.find('#brackets-node-debugger-input');
-
-    // We could also add a key binding at the same time:
-    //menu.addMenuItem(MY_COMMAND_ID, "Ctrl-Shift-I");
-    // (Note: "Ctrl" is automatically mapped to "Cmd" on Mac)
 });

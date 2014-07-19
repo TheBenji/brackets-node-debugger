@@ -11,20 +11,20 @@ define(function (require, exports) {
 	var _ = brackets.getModule("thirdparty/lodash"),
     EditorManager = brackets.getModule("editor/EditorManager"),
         DocumentManager = brackets.getModule("document/DocumentManager");
-	
+
 	var cm = null,
         cd = null,
         breakpoints = [],
         _nodeDebuggerDomain,
 		gutterName = 'node-debugger-bp-gutter';
-	
+
 	function _updateCm() {
 		var editor = EditorManager.getActiveEditor();
-		
+
         if (!editor || !editor._codeMirror) {
             return;
         }
-		
+
 		cm = editor._codeMirror;
 
         //Get the path to the current file as well
@@ -32,9 +32,9 @@ define(function (require, exports) {
         if(_cd) {
             cd = _cd.file.fullPath;
         }
-		
+
 	}
-	
+
 	function _updateGutters() {
 		if (!cm) { return; }
 
@@ -45,14 +45,14 @@ define(function (require, exports) {
             cm.on("gutterClick", gutterClick);
         }
 	}
-	
+
 	function gutterClick(cm, n, gutterId) {
 		if (gutterId !== gutterName && gutterId !== "CodeMirror-linenumbers") {
             return;
         }
 
 		var info = cm.lineInfo(n);
-		
+
 		if(info.gutterMarkers && info.gutterMarkers[gutterName]) {
             var bp = _.find(breakpoints, function(obj) {
                 return obj.line === n;
@@ -63,11 +63,11 @@ define(function (require, exports) {
             _nodeDebuggerDomain.exec("setBreakpoint", cd, n);
 		}
 	}
-	
+
 	function init(nodeDebuggerDomain) {
         _nodeDebuggerDomain = nodeDebuggerDomain;
 		_updateCm();
-		_updateGutters();	
+		_updateGutters();
 	}
 
     function addBreakpoint(bp) {
@@ -90,7 +90,7 @@ define(function (require, exports) {
         _updateCm();
         _updateGutters();
     });
-	
+
 	exports.init = init;
     exports.addBreakpoint = addBreakpoint;
     exports.removeAllBreakpoints = removeAllBreakpoints;
