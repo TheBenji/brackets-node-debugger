@@ -18,6 +18,7 @@ define(function (require, exports, module) {
         ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
 	
     ExtensionUtils.loadStyleSheet(module, "assets/style.css");
+    ExtensionUtils.loadStyleSheet(module, "assets/ionicons.css");
 	
 	var breakpointGutters = require('./breakpointGutter');
 	
@@ -48,11 +49,18 @@ define(function (require, exports, module) {
 
 		$(nodeDebuggerDomain).on("connect", function() {
 			addLog('Debugger connected');
+            $logPanel.find('.activate').addClass('ion-ios7-checkmark')
+                                    .removeClass('ion-ios7-close');
+            $logPanel.find('a.inactive').addClass('active').removeClass('inactive');
 		});
 
 		$(nodeDebuggerDomain).on("close", function() {
             breakpointGutters.removeAllBreakpoints();
 			addLog('Debugger disconnected');
+
+            $logPanel.find('.activate').addClass('ion-ios7-close')
+                                    .removeClass('ion-ios7-checkmark');
+            $logPanel.find('a.active').addClass('inactive').removeClass('active');
 		});
 		
 		$(nodeDebuggerDomain).on("break", function(e, body) {
@@ -65,6 +73,7 @@ define(function (require, exports, module) {
 			
             //Make sure the panel is open
 			panel.setVisible(true);
+            $logPanel.find('a.inactive').addClass('active').removeClass('inactive');
 			
 			DocumentManager.getDocumentForPath(docPath)
 				.done(function(doc) {
@@ -147,6 +156,7 @@ define(function (require, exports, module) {
     }
     
     function debuggerContinue() {
+        $logPanel.find('a.active').addClass('inactive').removeClass('active');
         if(highlightCm) {
             highlightCm.removeLineClass( activeLine , 'node-debugger-highlight-background', 'node-debugger-highlight');
             highlightCm = null;

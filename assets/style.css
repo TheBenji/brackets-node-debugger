@@ -2,6 +2,28 @@
 	color: #822;
 }
 
+#brackets-node-debugger-log a.icon {
+    margin: 0 10px;
+    color: #bbb;
+    font-size: 18px;
+}
+
+#brackets-node-debugger-log a.inactive {
+    opacity: 0.4;
+}
+
+#brackets-node-debugger-log a.active {
+    color: #78B2F2;
+}
+
+#brackets-node-debugger-log a.ion-ios7-close {
+   color: #F74687;
+}
+
+#brackets-node-debugger-log a.ion-ios7-checkmark {
+    color: #91CC41;
+}
+
 #brackets-node-debugger-content {
     overflow-y: scroll;
     height: 80%;
