@@ -105,9 +105,11 @@ function lookup(handles, callback) {
     debug.sendCommand(obj);
 }
 
-function start() {
-    //TODO: Port should be configurable
+function start(port, host) {
 	debug = new debugConnector();
+    debug.port = port;
+    debug.host = host;
+    debug.connect();
 	
 	debug.on('connect', function() {
 		_domainManager.emitEvent("brackets-node-debugger", "connect");
@@ -138,7 +140,18 @@ function init(domainManager) {
 		"start",
 		start,
 		false,
-		"Start the socket to listen to the debugger"
+		"Start the socket to listen to the debugger",
+		[{
+			name: "port",
+			type: "number",
+			description: "The port the V8 debugger is running on"
+		},
+         {
+			name: "host",
+			type: "string",
+			description: "The host the V8 debugger is running on"
+		}
+        ]
 	);
 	
 	_domainManager.registerCommand(

@@ -16,7 +16,9 @@ define(function (require, exports, module) {
 		AppInit        = brackets.getModule("utils/AppInit"),
 		PanelManager = brackets.getModule("view/PanelManager"),
         NodeDomain = brackets.getModule("utils/NodeDomain"),
-        ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
+        ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
+        PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
+        prefs = PreferencesManager.getExtensionPrefs("brackets-node-debugger");
 	
     ExtensionUtils.loadStyleSheet(module, "assets/style.css");
     ExtensionUtils.loadStyleSheet(module, "assets/ionicons.css");
@@ -29,6 +31,9 @@ define(function (require, exports, module) {
 	var $logPanel = $(null),
         activeLine = null,
         highlightCm = null;
+
+    prefs.definePreference("debugger-port", "number", 5858);
+    prefs.definePreference("debugger-host", "string", "localhost");
 	
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 	
@@ -123,7 +128,7 @@ define(function (require, exports, module) {
 
 		$logPanel.find('.activate').on('click', function() {
 			//Starts the socket and connects to the V8 debugger
-			nodeDebuggerDomain.exec("start");
+			nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"));
 		});
 		
 		$logPanel.find('.next').on('click', function() {
