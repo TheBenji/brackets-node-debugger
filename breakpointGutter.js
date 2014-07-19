@@ -80,6 +80,12 @@ define(function (require, exports) {
         cm.setGutterMarker( bp.line, gutterName, $marker[0] );
     }
 
+    function removeAllBreakpoints() {
+        breakpoints.forEach(function(bp) {
+            cm.setGutterMarker( bp.line, gutterName, null);
+        });
+    }
+
     $(DocumentManager).on("currentDocumentChange", function (evt, currentDocument, previousDocument) {
         _updateCm();
         _updateGutters();
@@ -87,4 +93,5 @@ define(function (require, exports) {
 	
 	exports.init = init;
     exports.addBreakpoint = addBreakpoint;
+    exports.removeAllBreakpoints = removeAllBreakpoints;
 });

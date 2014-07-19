@@ -49,6 +49,7 @@ define(function (require, exports, module) {
 		});
 
 		$(nodeDebuggerDomain).on("close", function() {
+            breakpointGutters.removeAllBreakpoints();
 			addLog('Debugger disconnected');
 		});
 		
