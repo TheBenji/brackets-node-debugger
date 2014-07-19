@@ -50,6 +50,10 @@ function setBreakpoint(file, line) {
         'line': line
     };
 
+    obj.callback = function(c, body) {
+      _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", body);
+    };
+
     debug.sendCommand(obj);
 }
 
@@ -58,6 +62,10 @@ function removeBreakpoint(breakpoint) {
     obj.command = 'clearbreakpoint';
     obj.arguments = { 'breakpoint' : breakpoint };
 
+    obj.callback = function(c, body) {
+      _domainManager.emitEvent("brackets-node-debugger", "clearBreakpoint", body);
+    };
+
     debug.sendCommand(obj);
 }
 
@@ -65,8 +73,24 @@ function evaluate(com) {
 	var obj = {};
 	obj.command = 'evaluate';
 	obj.arguments = { 'expression' : com };
+
+    obj.callback = function(c, body) {
+      _domainManager.emitEvent("brackets-node-debugger", "eval", body);
+    };
 	
 	debug.sendCommand(obj);
+}
+
+function lookup(handles) {
+    var obj = {};
+    obj.command = 'lookup';
+    obj.arguments = { 'handles': handles };
+
+    obj.callback = function(c, body) {
+      console.log(body);
+    };
+
+    debug.sendCommand(obj);
 }
 
 function start() {
@@ -88,18 +112,6 @@ function start() {
 	debug.on('break', function(body) {
 		_domainManager.emitEvent("brackets-node-debugger", "break", body);
 	});
-	
-	debug.on('eval', function(body) {
-		_domainManager.emitEvent("brackets-node-debugger", "eval", body);
-	});
-
-    debug.on('setBreakpoint', function(args) {
-        _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", args);
-    });
-
-    debug.on('clearBreakpoint', function(args) {
-        _domainManager.emitEvent("brackets-node-debugger", "clearBreakpoint", args);
-    });
 }
 
 function init(domainManager) {

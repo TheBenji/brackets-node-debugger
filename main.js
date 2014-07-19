@@ -69,7 +69,6 @@ define(function (require, exports, module) {
 			
 			//console.log(body);
 
-			//addLog("Break on: " + docPath + " : " + body.sourceLine);
 			
             //Make sure the panel is open
 			panel.setVisible(true);
@@ -92,9 +91,14 @@ define(function (require, exports, module) {
 		});
 		
 		$(nodeDebuggerDomain).on("eval", function(e, body) {
-			//console.log(body);
-			addLog('<< ' + body.text);
+			console.log(body);
+            var output = body.text;
+            if(body.type === 'object') {
+                //
+            }
+			addLog(output);
 		});
+
 
         $(nodeDebuggerDomain).on("setBreakpoint", function(e, bp) {
             breakpointGutters.addBreakpoint(bp);

@@ -70,17 +70,9 @@ var debugConnector = function() {
                 }
 
                 if(body.type === 'response') {
-                    if(body.command === 'evaluate') {
-                        self.emit('eval', body.body);
-                    }
 
-                    if(body.command === 'setbreakpoint') {
-                        self.emit('setBreakpoint', body.body);
-                        self.sendCommand({ "command" : "listbreakpoints" });
-                    }
-
-                    if(body.command === 'clearbreakpoint') {
-                        self.emit('clearBreakpoint', body.body);
+                    if(self._waitingForResponse[body.request_seq].callback) {
+                        self._waitingForResponse[body.request_seq].callback(body.command, body.body);
                     }
 
                     delete self._waitingForResponse[body.request_seq];
@@ -109,8 +101,8 @@ debugConnector.prototype.sendCommand = function(obj) {
 
 		var str = JSON.stringify(obj);
 
-		//console.log('Send: ');
-		//console.log(str);
+		console.log('Send: ');
+		console.log(str);
 
         self._waitingForResponse[obj.seq] = obj;
 		self.socket.write( "Content-Length:" + str.length + "\r\n\r\n" + str);
