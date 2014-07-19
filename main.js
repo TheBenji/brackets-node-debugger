@@ -62,6 +62,13 @@ define(function (require, exports, module) {
             $logPanel.find('.activate').addClass('ion-ios7-close')
                                     .removeClass('ion-ios7-checkmark');
             $logPanel.find('a.active').addClass('inactive').removeClass('active');
+
+            //remove highlight
+            if(highlightCm) {
+                highlightCm.removeLineClass( activeLine , 'node-debugger-highlight-background', 'node-debugger-highlight');
+                highlightCm = null;
+                activeLine = null;
+            }
 		});
 		
 		$(nodeDebuggerDomain).on("break", function(e, body) {
