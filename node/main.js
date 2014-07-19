@@ -75,20 +75,32 @@ function evaluate(com) {
 	obj.arguments = { 'expression' : com };
 
     obj.callback = function(c, body) {
-      _domainManager.emitEvent("brackets-node-debugger", "eval", body);
+        //If this is from type object get the properties as well
+        if(body.type === 'object' && body.properties) {
+            //Get all handles and send lookup
+            var handles = [];
+            body.properties.forEach(function(h) {
+                handles.push(h.ref);
+            });
+            lookup(handles, function(cmd, b) {
+                //Add the lookup stuff and emit the event
+                body.lookup = b;
+                _domainManager.emitEvent("brackets-node-debugger", "eval", body);
+            });
+        } else {
+            _domainManager.emitEvent("brackets-node-debugger", "eval", body);
+        }
     };
 	
 	debug.sendCommand(obj);
 }
 
-function lookup(handles) {
+function lookup(handles, callback) {
     var obj = {};
     obj.command = 'lookup';
     obj.arguments = { 'handles': handles };
 
-    obj.callback = function(c, body) {
-      console.log(body);
-    };
+    obj.callback = callback;
 
     debug.sendCommand(obj);
 }

@@ -35,11 +35,12 @@ define(function (require, exports, module) {
 	AppInit.appReady(function() {
 		breakpointGutters.init(nodeDebuggerDomain);
 		//Adds a new line to the log within brackets
-		function addLog(msg) {
+		function addLog($msg) {
 			//var h = '<div class="brackets-node-debugger-log">' + msg + '</div>';
             var $h = $("<div>")
-                .addClass('brackets-node-debugger-log')
-                .text(msg);
+                .addClass('brackets-node-debugger-log');
+
+            $h.append($msg)
 			$h.insertBefore($debuggerInput);
             $debuggerInput.focus();
             //Scroll to the bottom
@@ -48,7 +49,7 @@ define(function (require, exports, module) {
 
 
 		$(nodeDebuggerDomain).on("connect", function() {
-			addLog('Debugger connected');
+			addLog( $('<span>').text('Debugger connected') );
             $logPanel.find('.activate').addClass('ion-ios7-checkmark')
                                     .removeClass('ion-ios7-close');
             $logPanel.find('a.inactive').addClass('active').removeClass('inactive');
@@ -56,7 +57,7 @@ define(function (require, exports, module) {
 
 		$(nodeDebuggerDomain).on("close", function() {
             breakpointGutters.removeAllBreakpoints();
-			addLog('Debugger disconnected');
+			addLog( $('<span>').text('Debugger disconnected') );
 
             $logPanel.find('.activate').addClass('ion-ios7-close')
                                     .removeClass('ion-ios7-checkmark');
@@ -92,11 +93,21 @@ define(function (require, exports, module) {
 		
 		$(nodeDebuggerDomain).on("eval", function(e, body) {
 			console.log(body);
-            var output = body.text;
-            if(body.type === 'object') {
-                //
+            var $wrapper = $('<span>').addClass('wrapper');
+            $('<span>').addClass('type').text(body.type).appendTo($wrapper);
+            var $output = $('<span>');
+
+            if(body.type === 'object' && body.properties && body.lookup) {
+                var o = {};
+                body.properties.forEach(function(p) {
+                    o[p.name] = body.lookup[p.ref].text;
+                });
+                $output.text( JSON.stringify(o) );
+            } else {
+                $output.text( body.text );
             }
-			addLog(output);
+            $output.appendTo($wrapper);
+			addLog($wrapper);
 		});
 
 
@@ -145,7 +156,7 @@ define(function (require, exports, module) {
                 var com = $debuggerInput.html();
 
                 if(com.length > 0) {
-                    addLog('>> ' + com);
+                    addLog( $('<span>').text('>> ' + com) );
                     nodeDebuggerDomain.exec('eval', com);
                     //reset the input field
                     $debuggerInput.html('');

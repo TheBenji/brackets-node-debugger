@@ -48,3 +48,8 @@
 .node-debugger-highlight {
      background-color: rgba(130, 2, 0, 0.1);
 }
+
+#brackets-node-debugger-content .type {
+    color: #78B2F2;
+    padding-right: 10px;
+}
