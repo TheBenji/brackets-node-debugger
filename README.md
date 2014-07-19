@@ -10,6 +10,8 @@ Install it
 Use the built-in Brackets Extension Manager to install __Node.JS Debugger__
 _or_ clone this repository into your Extension folder
 
+You need to __restart__ (not just reload) Brackets after the installation!
+
 How to use it
 -------
 
