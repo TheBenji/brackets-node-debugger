@@ -20,13 +20,12 @@ define(function (require, exports, module) {
     ExtensionUtils.loadStyleSheet(module, "assets/style.css");
     ExtensionUtils.loadStyleSheet(module, "assets/ionicons.css");
 	
-	var breakpointGutters = require('./breakpointGutter');
+	var breakpointGutters = require('./src/breakpointGutter'),
+        nodeDebuggerPanel = require('./src/nodeDebuggerPanel');
 	
 	var logContainerHTML = require("text!assets/debuggerLog.html");
 	
 	var $logPanel = $(null),
-        $debuggerContent = $(null),
-        $debuggerInput = $(null),
         activeLine = null,
         highlightCm = null;
 	
@@ -34,22 +33,10 @@ define(function (require, exports, module) {
 	
 	AppInit.appReady(function() {
 		breakpointGutters.init(nodeDebuggerDomain);
-		//Adds a new line to the log within brackets
-		function addLog($msg) {
-			//var h = '<div class="brackets-node-debugger-log">' + msg + '</div>';
-            var $h = $("<div>")
-                .addClass('brackets-node-debugger-log');
-
-            $h.append($msg)
-			$h.insertBefore($debuggerInput);
-            $debuggerInput.focus();
-            //Scroll to the bottom
-            $debuggerContent.scrollTop( 9999999999999 );
-		}
-
+        nodeDebuggerPanel.init(nodeDebuggerDomain, $logPanel);
 
 		$(nodeDebuggerDomain).on("connect", function() {
-			addLog( $('<span>').text('Debugger connected') );
+			nodeDebuggerPanel.log( $('<span>').text('Debugger connected') );
             $logPanel.find('.activate').addClass('ion-ios7-checkmark')
                                     .removeClass('ion-ios7-close');
             $logPanel.find('a.inactive').addClass('active').removeClass('inactive');
@@ -57,7 +44,7 @@ define(function (require, exports, module) {
 
 		$(nodeDebuggerDomain).on("close", function() {
             breakpointGutters.removeAllBreakpoints();
-			addLog( $('<span>').text('Debugger disconnected') );
+			nodeDebuggerPanel.log( $('<span>').text('Debugger disconnected') );
 
             $logPanel.find('.activate').addClass('ion-ios7-close')
                                     .removeClass('ion-ios7-checkmark');
@@ -114,7 +101,7 @@ define(function (require, exports, module) {
                 $output.text( body.text );
             }
             $output.appendTo($wrapper);
-			addLog($wrapper);
+			nodeDebuggerPanel.log($wrapper);
 		});
 
 
@@ -157,19 +144,6 @@ define(function (require, exports, module) {
 			nodeDebuggerDomain.exec('continue');
             debuggerContinue();
 		});
-		
-		$debuggerInput.on('keypress', function(e) {
-            if(e.keyCode == 13) {
-                var com = $debuggerInput.html();
-
-                if(com.length > 0) {
-                    addLog( $('<span>').text('>> ' + com) );
-                    nodeDebuggerDomain.exec('eval', com);
-                    //reset the input field
-                    $debuggerInput.html('');
-                }
-            }
-		});
 	});
 
     // Function to run when the menu item is clicked
@@ -197,8 +171,6 @@ define(function (require, exports, module) {
 	
 	var panel = PanelManager.createBottomPanel("brackets-node-debugger.log", $(logContainerHTML));
 	$logPanel = panel.$panel;
-    $debuggerContent = $logPanel.find('#brackets-node-debugger-content');
-    $debuggerInput = $logPanel.find('#brackets-node-debugger-input');
 
     // We could also add a key binding at the same time:
     //menu.addMenuItem(MY_COMMAND_ID, "Ctrl-Shift-I");
