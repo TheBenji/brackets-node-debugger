@@ -37,6 +37,12 @@ function stepContinue() {
 
 function setBreakpoint(file, line) {
     var obj = {};
+
+    //Windows work around
+    if(file.search(':') !== -1) {
+        file = file.split('/').join('\\');
+    }
+
     obj.command = 'setbreakpoint';
     obj.arguments = {
         'type' : 'script',
@@ -70,6 +76,10 @@ function start() {
 	debug.on('connect', function() {
 		_domainManager.emitEvent("brackets-node-debugger", "connect");
 	});
+
+    debug.on('error', function(err) {
+        console.error('[Node-Debugger] Error: ' + err);
+    });
 	
 	debug.on('close', function() {
 		_domainManager.emitEvent("brackets-node-debugger", "close");
