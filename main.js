@@ -92,7 +92,7 @@ define(function (require, exports, module) {
 		});
 		
 		$(nodeDebuggerDomain).on("eval", function(e, body) {
-			console.log(body);
+			//console.log(body);
 			addLog('<< ' + body.text);
 		});
 

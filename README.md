@@ -1,41 +1,45 @@
-#Brackets Node Debugger
+#Brackets Node.JS Debugger
 
 Brackets-node-debugger is an extension for the [Brackets](http://brackets.io) editor.
 
-It's an early stage step-by-step debugger for Node applications.
+It's an early stage step-by-step debugger for Node.js applications.
 
 Install it
 ------
 
-You need to clone this repo into the extension folder (i.e Brackets/extensions/user)
-At the current state it's not available in the extension manager because it's still under heavy development.
+Use the built-in Brackets Extension Manager to install __Node.JS Debugger__
+_or_ clone this repository into your Extension folder
 
 How to use it
 -------
 
-Start your script with `node --debug-brk yor-script.js`
+Start your script with `node --debug-brk yor-script.js` _or_ `node --debug your-script.js`
 
 Go into Brackets and click on `Debug -> Node.js Debugger`
 
-Click now on `Activate` and wait until the Debugger is connected.
-Now you can click on `next` to get started
+Click on the red icon at the top left corner to activate the debugger and connect it to your script.
 
+![alt ](https://github.com/TheBenji/brackets-node-debugger/raw/master/screenshots/disconnect.png "Click on the icon to connect the Debugger")
 
-Features
-------
+Use the Buttons to _Step over_, _Step in_, _Step out_ or to _continue_ the script execution.
 
-At the moment there are a lot of important features missing but on the other hand there are probably a few more bugs :)
+![alt ](https://github.com/TheBenji/brackets-node-debugger/raw/master/screenshots/connected.png "Control the debugger")
 
-- Step next
-- Step in
-- Step out
-- get variables from current frame
+Click on a line number to set/remove a Breakpoint and use the console to get an variable for the current scope.
 
-Next steps
-----
+![alt ](https://github.com/TheBenji/brackets-node-debugger/raw/master/screenshots/breakpoint.png "Breakpoint and the console")
 
-Following the next top priority steps:
+Bugs & Contributing
+-----------
 
- - Breakpoints
- - Better gui
- - Make it clearer what's happening
+There are still a lot of featuers missing and probably a few bugs as well, so feel free to contribute in any way!
+
+Send a pull request, open an issue if you found a bug or if you have an idea to make this tool even better...
+
+License
+-----
+
+The Brackets Node.JS Debugger is licensed under the [MIT License](https://github.com/TheBenji/brackets-node-debugger/blob/master/LICENSE)
+
+And thanks for the awesome Icons, [Ionicons](https://github.com/driftyco/ionicons)
+
