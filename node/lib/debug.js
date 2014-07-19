@@ -101,8 +101,8 @@ debugConnector.prototype.sendCommand = function(obj) {
 
 		var str = JSON.stringify(obj);
 
-		console.log('Send: ');
-		console.log(str);
+		//console.log('Send: ');
+		//console.log(str);
 
         self._waitingForResponse[obj.seq] = obj;
 		self.socket.write( "Content-Length:" + str.length + "\r\n\r\n" + str);

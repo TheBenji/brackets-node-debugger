@@ -1,8 +1,8 @@
 {
   	"name": "brackets-node-debugger",
 	"title": "Node.js Debugger",
-  	"version": "0.1.1",
-  	"description": "Step-for-step debugger for node.js",
+  	"version": "0.1.2",
+  	"description": "Step-for-step debugger for node.js. Plase click on 'more' for Introductions",
 	"homepage": "https://github.com/TheBenji/brackets-node-debugger",
   	"author": "Benjamin August <benji889@yahoo.de>",
   	"license": "MIT",

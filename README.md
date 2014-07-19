@@ -17,7 +17,7 @@ How to use it
 
 Start your script with `node --debug-brk yor-script.js` _or_ `node --debug your-script.js`
 
-Go into Brackets and click on `Debug -> Node.js Debugger`
+Go into Brackets and click on `Debug -> Node.js Debugger` _or_ use `Ctrl-Shift-I`
 
 Click on the red icon at the top left corner to activate the debugger and connect it to your script.
 
@@ -30,6 +30,8 @@ Use the Buttons to _Step over_, _Step in_, _Step out_ or to _continue_ the scrip
 Click on a line number to set/remove a Breakpoint and use the console to get an variable for the current scope.
 
 ![alt ](https://github.com/TheBenji/brackets-node-debugger/raw/master/screenshots/breakpoint.png "Breakpoint and the console")
+
+Use the arrow keys to browse through the history.
 
 Bugs & Contributing
 -----------

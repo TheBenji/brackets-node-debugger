@@ -87,7 +87,7 @@ define(function (require, exports, module) {
 		});
 		
 		$(nodeDebuggerDomain).on("eval", function(e, body) {
-			console.log(body);
+			//console.log(body);
             var $wrapper = $('<span>').addClass('wrapper');
             $('<span>').addClass('type').text(body.type).appendTo($wrapper);
             var $output = $('<span>');
