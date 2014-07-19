@@ -55,10 +55,12 @@ define(function (require, exports) {
 
 		if(info.gutterMarkers && info.gutterMarkers[gutterName]) {
             var bp = _.find(breakpoints, function(obj) {
-                return obj.line === n;
+                return obj.line === n && cm === obj.cm;
             });
             _nodeDebuggerDomain.exec("removeBreakpoint", bp.breakpoint);
             cm.setGutterMarker( bp.line, gutterName, null );
+            var i = breakpoints.indexOf(bp);
+            breakpoints.splice(i, 1);
 		} else {
             _nodeDebuggerDomain.exec("setBreakpoint", cd, n);
 		}
@@ -71,19 +73,22 @@ define(function (require, exports) {
 	}
 
     function addBreakpoint(bp) {
+        bp.cm = cm;
         breakpoints.push(bp);
 
         var $marker = $("<div>")
                 .addClass('breakpoint-gutter')
                 .html("●");
 
-        cm.setGutterMarker( bp.line, gutterName, $marker[0] );
+        bp.cm.setGutterMarker( bp.line, gutterName, $marker[0] );
     }
 
     function removeAllBreakpoints() {
         breakpoints.forEach(function(bp) {
-            cm.setGutterMarker( bp.line, gutterName, null);
+            bp.cm.setGutterMarker( bp.line, gutterName, null);
         });
+        //Delete all
+        breakpoints = [];
     }
 
     $(DocumentManager).on("currentDocumentChange", function (evt, currentDocument, previousDocument) {
