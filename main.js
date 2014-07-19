@@ -12,6 +12,7 @@ define(function (require, exports, module) {
 		DocumentManager = brackets.getModule("document/DocumentManager"),
 		Editor = brackets.getModule("editor/EditorManager"),
         Menus          = brackets.getModule("command/Menus"),
+        KeyBindingManager  = brackets.getModule("command/KeyBindingManager"),
 		AppInit        = brackets.getModule("utils/AppInit"),
 		PanelManager = brackets.getModule("view/PanelManager"),
         NodeDomain = brackets.getModule("utils/NodeDomain"),
@@ -167,12 +168,9 @@ define(function (require, exports, module) {
     // The label of the menu item is the name we gave the command (see above)
     var menu = Menus.getMenu('debug-menu');
     menu.addMenuItem(MY_COMMAND_ID);
+    KeyBindingManager.addBinding(MY_COMMAND_ID, "Ctrl-Shift-I");
 	
 	
 	var panel = PanelManager.createBottomPanel("brackets-node-debugger.log", $(logContainerHTML));
 	$logPanel = panel.$panel;
-
-    // We could also add a key binding at the same time:
-    //menu.addMenuItem(MY_COMMAND_ID, "Ctrl-Shift-I");
-    // (Note: "Ctrl" is automatically mapped to "Cmd" on Mac)
 });
