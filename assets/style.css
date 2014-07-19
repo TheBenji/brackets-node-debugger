@@ -1,3 +1,24 @@
 .breakpoint-gutter {
 	color: #822;
 }
+
+#brackets-node-debugger-content {
+    overflow-y: scroll;
+    height: 80%;
+}
+
+#brackets-node-debugger-input {
+    height: 20px;
+    max-height: 20px;
+    padding-left: 25px;
+    float: left;
+}
+
+#brackets-node-debugger-input:before {
+    content: ">>";
+    display: block;
+    margin-left: -25px;
+    height: 20px;
+    float: left;
+    color: #822;
+}

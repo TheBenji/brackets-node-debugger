@@ -23,7 +23,9 @@ define(function (require, exports, module) {
 	
 	var logContainerHTML = require("text!assets/debuggerLog.html");
 	
-	var $logPanel = $(null);
+	var $logPanel = $(null),
+        $debuggerContent = $(null),
+        $debuggerInput = $(null);
 	
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 	
@@ -31,8 +33,14 @@ define(function (require, exports, module) {
 		breakpointGutters.init(nodeDebuggerDomain);
 		//Adds a new line to the log within brackets
 		function addLog(msg) {
-			var h = '<div class="brackets-node-debugger-log">' + msg + '</div>';
-			$(h).appendTo($logPanel.find('#brackets-node-debugger-content'));
+			//var h = '<div class="brackets-node-debugger-log">' + msg + '</div>';
+            var $h = $("<div>")
+                .addClass('brackets-node-debugger-log')
+                .text(msg);
+			$h.insertBefore($debuggerInput);
+            $debuggerInput.focus();
+            //Scroll to the bottom
+            $debuggerContent.scrollTop( 9999999999999 );
 		}
 
 
@@ -66,7 +74,7 @@ define(function (require, exports, module) {
 		
 		$(nodeDebuggerDomain).on("eval", function(e, body) {
 			console.log(body);
-			addLog('<< ' + body.value);
+			addLog('<< ' + body.text);
 		});
 
         $(nodeDebuggerDomain).on("setBreakpoint", function(e, bp) {
@@ -105,13 +113,17 @@ define(function (require, exports, module) {
 			nodeDebuggerDomain.exec('continue');
 		});
 		
-		$logPanel.find('.action').on('click', function() {
-			var com = $logPanel.find('#brackets-node-debugger-input').val();
-			
-			if(com.length > 0) {
-				addLog('>> ' + com);
-				nodeDebuggerDomain.exec('eval', com);	
-			}
+		$debuggerInput.on('keypress', function(e) {
+            if(e.keyCode == 13) {
+                var com = $debuggerInput.html();
+
+                if(com.length > 0) {
+                    addLog('>> ' + com);
+                    nodeDebuggerDomain.exec('eval', com);
+                    //reset the input field
+                    $debuggerInput.html('');
+                }
+            }
 		});
 	});
 
@@ -131,6 +143,8 @@ define(function (require, exports, module) {
 	
 	var panel = PanelManager.createBottomPanel("brackets-node-debugger.log", $(logContainerHTML));
 	$logPanel = panel.$panel;
+    $debuggerContent = $logPanel.find('#brackets-node-debugger-content');
+    $debuggerInput = $logPanel.find('#brackets-node-debugger-input');
 
     // We could also add a key binding at the same time:
     //menu.addMenuItem(MY_COMMAND_ID, "Ctrl-Shift-I");
