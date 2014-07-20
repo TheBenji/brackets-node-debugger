@@ -33,6 +33,21 @@ Click on a line number to set/remove a Breakpoint and use the console to get an 
 
 Use the arrow keys to browse through the history.
 
+Options
+---------
+
+Open the preferences file (`brackets.json`) and edit/add the entry.
+All options use the `brackets-node-debugger.`-prefix
+
+|Option                     |Default     | Description                           |
+|---------------------------|------------|---------------------------------------|
+|debugger-port              |5858        |Port the V8 Debugger is running on     |
+|debugger-host              |localhost   |Host the V8 Debugger is running on     |
+|showChangelogOnUpdate      |true        |Show Changelog Dialog when you update the Extension|
+|autoConnectOnToggle|false|Connect to the debugger as soon as you open the Node.js Debugger Panel|
+|autoConnect|false|Connect always to the debugger as soon as available, powerful if your node process restarts on file changes|
+|removeBreakpointsOnDisconnect|false|Remove all Breakpoints when Debugger disconnects|
+
 Bugs & Contributing
 -----------
 
