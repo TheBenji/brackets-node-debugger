@@ -5,6 +5,7 @@
  * @license http://opensource.org/licenses/MIT
  */
 
+/*global define, brackets, $ */
 define(function (require, exports) {
     "use strict";
 
@@ -18,6 +19,9 @@ define(function (require, exports) {
         _nodeDebuggerDomain,
 		gutterName = 'node-debugger-bp-gutter';
 
+    /*
+    * Sets the CodeMirror instance for the active editor
+    */
 	function _updateCm() {
 		var editor = EditorManager.getActiveEditor();
 
@@ -35,6 +39,9 @@ define(function (require, exports) {
 
 	}
 
+    /*
+    *   Update gutters, call on document change
+    */
 	function _updateGutters() {
 		if (!cm) { return; }
 
@@ -46,6 +53,17 @@ define(function (require, exports) {
         }
 	}
 
+    /*
+    * Sets or removes Breakpoint at cliked line
+    *
+    * @param {CodeMirror} cm
+    * The CodeMirror instance
+    *
+    * @param {Number} n
+    * LineNumber
+    *
+    * @param {String} gutterId
+    */
 	function gutterClick(cm, n, gutterId) {
 		if (gutterId !== gutterName && gutterId !== "CodeMirror-linenumbers") {
             return;
@@ -62,41 +80,81 @@ define(function (require, exports) {
             var i = breakpoints.indexOf(bp);
             breakpoints.splice(i, 1);
 		} else {
+            //TODO Show warning if not connected
             _nodeDebuggerDomain.exec("setBreakpoint", cd, n);
 		}
 	}
 
+    /*
+    *   @param {NodeDomain} nodeDebuggerDomain
+    */
 	function init(nodeDebuggerDomain) {
         _nodeDebuggerDomain = nodeDebuggerDomain;
 		_updateCm();
 		_updateGutters();
 	}
 
+    /* Sets the breakpoint gutter
+    *
+    * @param {breakpoint} bp
+    * bp as object like the V8 Debugger sends it
+    *
+    */
     function addBreakpoint(bp) {
-        bp.cm = cm;
-        breakpoints.push(bp);
+        //If this one of the reconnect BP don't add it
+        var exist = _.find(breakpoints, function(obj) {
+            return obj.line === bp.line && obj.fullPath === bp.fullPath;
+        });
+        if(!exist) {
+            bp.cm = cm;
+            breakpoints.push(bp);
 
-        var $marker = $("<div>")
-                .addClass('breakpoint-gutter')
-                .html("●");
+            var $marker = $("<div>")
+                    .addClass('breakpoint-gutter')
+                    .html("●");
 
-        bp.cm.setGutterMarker( bp.line, gutterName, $marker[0] );
+            bp.cm.setGutterMarker( bp.line, gutterName, $marker[0] );
+        }
     }
 
+    /*
+    * Removes all Breakpoints
+    */
     function removeAllBreakpoints() {
         breakpoints.forEach(function(bp) {
             bp.cm.setGutterMarker( bp.line, gutterName, null);
+            _nodeDebuggerDomain.exec("removeBreakpoint", bp.breakpoint);
         });
         //Delete all
         breakpoints = [];
     }
 
-    $(DocumentManager).on("currentDocumentChange", function (evt, currentDocument, previousDocument) {
+    /*
+    * Call on connect
+    * Set all breakpoints if there are any
+    * Remove all gutters and request a list of breakpoints
+    * to make sure we're consistent
+    */
+    function setAllBreakpoints() {
+        console.log('Set Breakpoints: ' + breakpoints.length);
+        if(breakpoints.length > 0) {
+            breakpoints.forEach(function(bp) {
+                _nodeDebuggerDomain.exec("setBreakpoint", bp.fullPath, bp.line);
+            });
+            //TODO: Reload all Breakpoints?
+            //Request list of actual set breakpoints
+            //_nodeDebuggerDomain.exec("getBreakpoints");
+        }
+    }
+
+    $(DocumentManager).on("currentDocumentChange", function () {
         _updateCm();
         _updateGutters();
     });
 
+
 	exports.init = init;
     exports.addBreakpoint = addBreakpoint;
+    exports.setAllBreakpoints = setAllBreakpoints;
     exports.removeAllBreakpoints = removeAllBreakpoints;
 });

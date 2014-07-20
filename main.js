@@ -5,6 +5,7 @@
  * @license http://opensource.org/licenses/MIT
  */
 
+/*global define, brackets, $ */
 define(function (require, exports, module) {
     "use strict";
 
@@ -42,6 +43,7 @@ define(function (require, exports, module) {
     prefs.definePreference("lastVersion", "string", "none");
     prefs.definePreference("autoConnectOnToggle", "boolean", false);
     prefs.definePreference("autoConnect", "boolean", false);
+    prefs.definePreference("removeBreakpointsOnDisconnect", "boolean", false);
 	
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 	
@@ -72,6 +74,7 @@ define(function (require, exports, module) {
         }
 
 		$(nodeDebuggerDomain).on("connect", function() {
+            breakpointGutters.setAllBreakpoints();
 			nodeDebuggerPanel.log( $('<span>').text('Debugger connected') );
             $logPanel.find('.activate').addClass('ion-ios7-checkmark')
                                     .removeClass('ion-ios7-close');
@@ -79,6 +82,7 @@ define(function (require, exports, module) {
             $('#node-debugger-indicator').addClass('connected');
 		});
 
+        //On debugger disconnect
 		$(nodeDebuggerDomain).on("close", function(e, err) {
             var msg = "Debugger disconnected";
             if(err) {
@@ -88,9 +92,13 @@ define(function (require, exports, module) {
             if(err === 'ECONNREFUSED') {
                 msg = "Couldn't connect to " + prefs.get("debugger-host") + ":" + prefs.get("debugger-port");
             }
-            breakpointGutters.removeAllBreakpoints();
+            if(prefs.get("removeBreakpointsOnDisconnect")) {
+                breakpointGutters.removeAllBreakpoints();
+            }
+
 			nodeDebuggerPanel.log( $('<span>').text(msg) );
 
+            //GUI update
             $logPanel.find('.activate').addClass('ion-ios7-close')
                                     .removeClass('ion-ios7-checkmark');
             $logPanel.find('a.active').addClass('inactive').removeClass('active');
@@ -189,6 +197,10 @@ define(function (require, exports, module) {
 		$logPanel.find('.continue').on('click', function() {
 			nodeDebuggerDomain.exec('continue');
             debuggerContinue();
+		});
+
+		$logPanel.find('.removeBP').on('click', function() {
+            breakpointGutters.removeAllBreakpoints();
 		});
 
         //Open panel on status indicator click

@@ -1,3 +1,4 @@
+/*global require*/
 var debugConnector = require('./lib/debug.js').debugConnector;
 
 var _domainManager,
@@ -38,7 +39,7 @@ function stepContinue() {
 
 function setBreakpoint(file, line) {
     var obj = {};
-
+    var fullPath = file;
     //Windows work around
     if(file.search(':') !== -1) {
         file = file.split('/').join('\\');
@@ -52,6 +53,7 @@ function setBreakpoint(file, line) {
     };
 
     obj.callback = function(c, body) {
+        body.fullPath = fullPath;
       _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", body);
     };
 
@@ -104,6 +106,15 @@ function lookup(handles, callback) {
     obj.callback = callback;
 
     debug.sendCommand(obj);
+}
+
+function getBreakpoints() {
+    debug.sendCommand({
+        "command": "listbreakpoints",
+        "callback": function(c, body) {
+            _domainManager.emitEvent("brackets-node-debugger", "allBreakpoints", body);
+        }
+    });
 }
 
 function start(port, host, autoConnect) {
@@ -259,6 +270,14 @@ function init(domainManager) {
 		}]
 	);
 
+	_domainManager.registerCommand(
+		"brackets-node-debugger",
+		"getBreakpoints",
+		getBreakpoints,
+		false,
+		"Get a list of all Breakpoints"
+	);
+
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"connect"
@@ -307,6 +326,16 @@ function init(domainManager) {
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"clearBreakpoint",
+		[{
+			name: "args",
+			type: "object",
+			description: "The Arguments V8 sends us as response"
+		}]
+	);
+
+	_domainManager.registerEvent(
+		"brackets-node-debugger",
+		"allBreakpoints",
 		[{
 			name: "args",
 			type: "object",

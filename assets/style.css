@@ -18,6 +18,10 @@
     color: #78B2F2;
 }
 
+#brackets-node-debugger-log a.removeBP:hover {
+   color: #F74687;
+}
+
 #brackets-node-debugger-log a.inactive {
     opacity: 0.4;
 }
