@@ -136,7 +136,6 @@ define(function (require, exports) {
     * to make sure we're consistent
     */
     function setAllBreakpoints() {
-        console.log('Set Breakpoints: ' + breakpoints.length);
         if(breakpoints.length > 0) {
             breakpoints.forEach(function(bp) {
                 _nodeDebuggerDomain.exec("setBreakpoint", bp.fullPath, bp.line);
