@@ -8,6 +8,16 @@
     font-size: 18px;
 }
 
+#brackets-node-debugger-log a.info {
+    margin: 0 15px;
+    color: #bbb;
+    font-size: 18px;
+}
+
+#brackets-node-debugger-log a.info:hover {
+    color: #78B2F2;
+}
+
 #brackets-node-debugger-log a.inactive {
     opacity: 0.4;
 }
