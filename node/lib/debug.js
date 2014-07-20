@@ -3,8 +3,6 @@ var net = require('net'),
 	util = require('util');
 
 var debugConnector = function() {
-	var self = this;
-	
 	events.EventEmitter.call(this);
 	
 	this.port = 5858;
@@ -16,7 +14,12 @@ var debugConnector = function() {
     this._body = '';
     this._header = true;
     this._contentLength = 0;
-	
+};
+
+util.inherits(debugConnector, events.EventEmitter);
+
+debugConnector.prototype.connect = function() {
+    var self = this;
 	//Create connection to V8 Debugger
 	this.socket = net.createConnection(self.port, self.host);
 	
@@ -90,8 +93,6 @@ var debugConnector = function() {
 	});
 };
 
-util.inherits(debugConnector, events.EventEmitter);
-
 debugConnector.prototype.sendCommand = function(obj) {
 	var self = this;
 	
@@ -107,7 +108,8 @@ debugConnector.prototype.sendCommand = function(obj) {
         self._waitingForResponse[obj.seq] = obj;
 		self.socket.write( "Content-Length:" + str.length + "\r\n\r\n" + str);
 	} else {
-		console.error('[Node-Debugger] Can\'t send command, not connected!');	
+        //Just ignore it, that is ok
+		//console.error('[Node-Debugger] Can\'t send command, not connected!');
 	}
 };
 

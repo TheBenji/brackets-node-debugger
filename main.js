@@ -5,23 +5,30 @@
  * @license http://opensource.org/licenses/MIT
  */
 
+/*global define, brackets, $ */
 define(function (require, exports, module) {
     "use strict";
 
     var CommandManager = brackets.getModule("command/CommandManager"),
 		DocumentManager = brackets.getModule("document/DocumentManager"),
 		Editor = brackets.getModule("editor/EditorManager"),
-        Menus          = brackets.getModule("command/Menus"),
+        Menus = brackets.getModule("command/Menus"),
+        FileSystem = brackets.getModule("filesystem/FileSystem"),
+        FileUtils = brackets.getModule("file/FileUtils"),
+        StatusBar = brackets.getModule("widgets/StatusBar"),
         KeyBindingManager  = brackets.getModule("command/KeyBindingManager"),
 		AppInit        = brackets.getModule("utils/AppInit"),
 		PanelManager = brackets.getModule("view/PanelManager"),
         NodeDomain = brackets.getModule("utils/NodeDomain"),
-        ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
+        ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
+        PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
+        prefs = PreferencesManager.getExtensionPrefs("brackets-node-debugger");
 	
     ExtensionUtils.loadStyleSheet(module, "assets/style.css");
     ExtensionUtils.loadStyleSheet(module, "assets/ionicons.css");
 	
 	var breakpointGutters = require('./src/breakpointGutter'),
+        changelogDialog = require('./src/changelogDialog'),
         nodeDebuggerPanel = require('./src/nodeDebuggerPanel');
 	
 	var logContainerHTML = require("text!assets/debuggerLog.html");
@@ -29,27 +36,73 @@ define(function (require, exports, module) {
 	var $logPanel = $(null),
         activeLine = null,
         highlightCm = null;
+
+    prefs.definePreference("debugger-port", "number", 5858);
+    prefs.definePreference("debugger-host", "string", "localhost");
+    prefs.definePreference("showChangelogOnUpdate", "boolean", true);
+    prefs.definePreference("lastVersion", "string", "none");
+    prefs.definePreference("autoConnectOnToggle", "boolean", false);
+    prefs.definePreference("autoConnect", "boolean", false);
+    prefs.definePreference("removeBreakpointsOnDisconnect", "boolean", false);
 	
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 	
 	AppInit.appReady(function() {
+        //Show Changelog on update (with warning to restart Brackets!)
+        if(prefs.get("showChangelogOnUpdate")) {
+            var path = ExtensionUtils.getModulePath(module, 'package.json');
+            FileUtils.readAsText(FileSystem.getFileForPath(path)).done(function (content) {
+                var version = JSON.parse(content).version;
+                var lastVersion = prefs.get("lastVersion");
+
+                if(lastVersion !== version) {
+                    changelogDialog.show();
+                }
+                prefs.set("lastVersion", version);
+                prefs.save();
+            });
+        }
+
 		breakpointGutters.init(nodeDebuggerDomain);
         nodeDebuggerPanel.init(nodeDebuggerDomain, $logPanel);
 
+        //AutoConnect
+        if(prefs.get("autoConnect")) {
+            nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), true);
+        var $sb = $("<div>").addClass("ion-android-developer");
+        StatusBar.addIndicator("node-debugger-indicator", $sb, true, null, "Node.js Debugger");
+        }
+
 		$(nodeDebuggerDomain).on("connect", function() {
+            breakpointGutters.setAllBreakpoints();
 			nodeDebuggerPanel.log( $('<span>').text('Debugger connected') );
             $logPanel.find('.activate').addClass('ion-ios7-checkmark')
                                     .removeClass('ion-ios7-close');
             $logPanel.find('a.inactive').addClass('active').removeClass('inactive');
+            $('#node-debugger-indicator').addClass('connected');
 		});
 
-		$(nodeDebuggerDomain).on("close", function() {
-            breakpointGutters.removeAllBreakpoints();
-			nodeDebuggerPanel.log( $('<span>').text('Debugger disconnected') );
+        //On debugger disconnect
+		$(nodeDebuggerDomain).on("close", function(e, err) {
+            var msg = "Debugger disconnected";
+            if(err) {
+                msg += ": " + err;
+            }
 
+            if(err === 'ECONNREFUSED') {
+                msg = "Couldn't connect to " + prefs.get("debugger-host") + ":" + prefs.get("debugger-port");
+            }
+            if(prefs.get("removeBreakpointsOnDisconnect")) {
+                breakpointGutters.removeAllBreakpoints();
+            }
+
+			nodeDebuggerPanel.log( $('<span>').text(msg) );
+
+            //GUI update
             $logPanel.find('.activate').addClass('ion-ios7-close')
                                     .removeClass('ion-ios7-checkmark');
             $logPanel.find('a.active').addClass('inactive').removeClass('active');
+            $('#node-debugger-indicator').removeClass('connected');
 
             //remove highlight
             if(highlightCm) {
@@ -123,7 +176,7 @@ define(function (require, exports, module) {
 
 		$logPanel.find('.activate').on('click', function() {
 			//Starts the socket and connects to the V8 debugger
-			nodeDebuggerDomain.exec("start");
+			nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false);
 		});
 		
 		$logPanel.find('.next').on('click', function() {
@@ -145,11 +198,24 @@ define(function (require, exports, module) {
 			nodeDebuggerDomain.exec('continue');
             debuggerContinue();
 		});
+
+		$logPanel.find('.removeBP').on('click', function() {
+            breakpointGutters.removeAllBreakpoints();
+		});
+
+        //Open panel on status indicator click
+        $('#node-debugger-indicator').on('click', function() {
+            toggleLog();
+        });
 	});
 
     // Function to run when the menu item is clicked
     function toggleLog() {
         panel.setVisible(!panel.isVisible());
+        //try to connect on toggle?
+        if(prefs.get("autoConnectOnToggle") && panel.isVisible()) {
+            nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false);
+        }
     }
     
     function debuggerContinue() {
