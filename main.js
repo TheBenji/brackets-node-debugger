@@ -200,6 +200,10 @@ define(function (require, exports, module) {
     // Function to run when the menu item is clicked
     function toggleLog() {
         panel.setVisible(!panel.isVisible());
+        //try to connect on toggle?
+        if(prefs.get("autoConnectOnToggle") && panel.isVisible()) {
+            nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false);
+        }
     }
     
     function debuggerContinue() {
