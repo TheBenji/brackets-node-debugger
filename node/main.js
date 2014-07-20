@@ -1,7 +1,8 @@
 var debugConnector = require('./lib/debug.js').debugConnector;
 
 var _domainManager,
-	debug;
+	debug,
+    _autoConnect;
 
 
 function stepNext() {
@@ -105,22 +106,44 @@ function lookup(handles, callback) {
     debug.sendCommand(obj);
 }
 
-function start(port, host) {
-	debug = new debugConnector();
-    debug.port = port;
-    debug.host = host;
-    debug.connect();
-	
+function start(port, host, autoConnect) {
+    _autoConnect = autoConnect;
+
+    if(!debug) {
+        debug = new debugConnector();
+        setEventHandlers();
+    }
+    if(!debug.connected) {
+        debug.port = port;
+        debug.host = host;
+        debug.connect();
+    }
+}
+
+function setEventHandlers() {
+
 	debug.on('connect', function() {
 		_domainManager.emitEvent("brackets-node-debugger", "connect");
 	});
 
     debug.on('error', function(err) {
-        console.error('[Node-Debugger] Error: ' + err);
+        if(_autoConnect) {
+            //Try in a second again
+            setTimeout(function() {
+                start(debug.port, debug.host, _autoConnect);
+            }, 2000);
+            if(err.errno !== 'ECONNREFUSED') {
+                _domainManager.emitEvent("brackets-node-debugger", "close", err.errno);
+            }
+        } else {
+            _domainManager.emitEvent("brackets-node-debugger", "close", err.errno);
+        }
     });
 	
-	debug.on('close', function() {
-		_domainManager.emitEvent("brackets-node-debugger", "close");
+	debug.on('close', function(err) {
+        if(!err) {
+		  _domainManager.emitEvent("brackets-node-debugger", "close", false);
+        }
 	});
 	
 	debug.on('break', function(body) {
@@ -150,8 +173,12 @@ function init(domainManager) {
 			name: "host",
 			type: "string",
 			description: "The host the V8 debugger is running on"
-		}
-        ]
+		},
+         {
+			name: "autoConnect",
+			type: "boolean",
+			description: "Try to reconnect on error"
+		}]
 	);
 	
 	_domainManager.registerCommand(
@@ -239,7 +266,12 @@ function init(domainManager) {
 	
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
-		"close"
+		"close",
+        [{
+			name: "error",
+			type: "string",
+			description: "Reason for close"
+		}]
 	);
 	
 	_domainManager.registerEvent(

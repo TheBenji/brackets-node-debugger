@@ -53,3 +53,12 @@
     color: #78B2F2;
     padding-right: 10px;
 }
+
+#status-bar #node-debugger-indicator.ion-android-developer {
+    color: #F74687;
+    cursor: pointer;
+}
+
+#status-bar #node-debugger-indicator.ion-android-developer.connected {
+     color: #91CC41;
+}

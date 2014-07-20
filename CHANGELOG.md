@@ -6,6 +6,7 @@
 ## 0.1.3
 * ADD: Settings for Debugger port and host
 * ADD: Changelog
+* ADD: Option for auto connect
 * BUGFIX: Breakpoints clear always properly now
 
 ## 0.1.2
