@@ -12,6 +12,8 @@ define(function (require, exports, module) {
 		DocumentManager = brackets.getModule("document/DocumentManager"),
 		Editor = brackets.getModule("editor/EditorManager"),
         Menus          = brackets.getModule("command/Menus"),
+        FileSystem                 = brackets.getModule("filesystem/FileSystem"),
+        FileUtils                  = brackets.getModule("file/FileUtils"),
         KeyBindingManager  = brackets.getModule("command/KeyBindingManager"),
 		AppInit        = brackets.getModule("utils/AppInit"),
 		PanelManager = brackets.getModule("view/PanelManager"),
@@ -24,6 +26,7 @@ define(function (require, exports, module) {
     ExtensionUtils.loadStyleSheet(module, "assets/ionicons.css");
 	
 	var breakpointGutters = require('./src/breakpointGutter'),
+        changelogDialog = require('./src/changelogDialog'),
         nodeDebuggerPanel = require('./src/nodeDebuggerPanel');
 	
 	var logContainerHTML = require("text!assets/debuggerLog.html");
@@ -34,10 +37,27 @@ define(function (require, exports, module) {
 
     prefs.definePreference("debugger-port", "number", 5858);
     prefs.definePreference("debugger-host", "string", "localhost");
+    prefs.definePreference("showChangelogOnUpdate", "boolean", true);
+    prefs.definePreference("lastVersion", "string", "none");
 	
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 	
 	AppInit.appReady(function() {
+        //Show Changelog on update (with warning to restart Brackets!)
+        if(prefs.get("showChangelogOnUpdate")) {
+            var path = ExtensionUtils.getModulePath(module, 'package.json');
+            FileUtils.readAsText(FileSystem.getFileForPath(path)).done(function (content) {
+                var version = JSON.parse(content).version;
+                var lastVersion = prefs.get("lastVersion");
+
+                if(lastVersion !== version) {
+                    changelogDialog.show();
+                }
+                prefs.set("lastVersion", version);
+                prefs.save();
+            });
+        }
+
 		breakpointGutters.init(nodeDebuggerDomain);
         nodeDebuggerPanel.init(nodeDebuggerDomain, $logPanel);
 
