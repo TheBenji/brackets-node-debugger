@@ -86,7 +86,7 @@ define(function (require, exports, module) {
             }
 
             if(err === 'ECONNREFUSED') {
-                msg = "Couldn't connect to " + prefs.get("debugger-port") + ":" + prefs.get("debugger-host");
+                msg = "Couldn't connect to " + prefs.get("debugger-host") + ":" + prefs.get("debugger-port");
             }
             breakpointGutters.removeAllBreakpoints();
 			nodeDebuggerPanel.log( $('<span>').text(msg) );
