@@ -139,19 +139,22 @@ function setEventHandlers() {
 
     debug.on('error', function(err) {
         if(_autoConnect) {
-            //Try in a second again
-            setTimeout(function() {
-                start(debug.port, debug.host, _autoConnect);
-            }, 2000);
-            if(err.errno !== 'ECONNREFUSED') {
-                _domainManager.emitEvent("brackets-node-debugger", "close", err.errno);
-            }
+			if(err.errno !== 'ECONNREFUSED') {
+				_domainManager.emitEvent("brackets-node-debugger", "close", err.errno);
+			}
         } else {
             _domainManager.emitEvent("brackets-node-debugger", "close", err.errno);
         }
     });
 	
 	debug.on('close', function(err) {
+		if(_autoConnect) {
+		    //Try in a second again
+            setTimeout(function() {
+                start(debug.port, debug.host, _autoConnect);
+            }, 2000);
+		}
+
         if(!err) {
 		  _domainManager.emitEvent("brackets-node-debugger", "close", false);
         }
