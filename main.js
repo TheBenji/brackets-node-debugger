@@ -35,7 +35,8 @@ define(function (require, exports, module) {
 	
 	var $logPanel = $(null),
         activeLine = null,
-        highlightCm = null;
+        highlightCm = null,
+		maxDeepth = 3;
 
     prefs.definePreference("debugger-port", "number", 5858);
     prefs.definePreference("debugger-host", "string", "localhost");
@@ -143,8 +144,9 @@ define(function (require, exports, module) {
 			console.log(body);
             var $wrapper = $('<span>').addClass('wrapper');
             $('<span>').addClass('type').text(body.type).appendTo($wrapper);
-            var $output = $('<span>');
+            var $output = createEvalHTML(body, 0, body.lookup);
 
+			/*
             if(body.type === 'object' && body.properties && body.lookup) {
                 var o = {};
                 body.properties.forEach(function(p) {
@@ -153,10 +155,34 @@ define(function (require, exports, module) {
                 $output.text( JSON.stringify(o) );
             } else {
                 $output.text( body.text );
-            }
+            }*/
             $output.appendTo($wrapper);
 			nodeDebuggerPanel.log($wrapper);
 		});
+
+		function createEvalHTML(body, depth, lookup) {
+			console.log('Create: ');
+			console.log(body);
+			var $html = $('<span>');
+			depth++;
+
+			if(body.type === 'object' && body.properties) {
+                var o = {};
+                body.properties.forEach(function(p) {
+					if(lookup[p.ref]) {
+                    	o[p.name] = lookup[p.ref].text;
+						if(depth < maxDeepth) {
+							createEvalHTML(lookup[p.ref], depth, lookup).addClass('hidden').appendTo($html);
+						}
+					}
+                });
+                $html.prepend( $('<span>').text(JSON.stringify(o)) );
+            } else {
+                $html.prepend( $('<span>').text(body.text) );
+            }
+			return $html;
+
+		}
 
 
         $(nodeDebuggerDomain).on("setBreakpoint", function(e, bp) {

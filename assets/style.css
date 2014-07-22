@@ -71,6 +71,10 @@
     padding-right: 10px;
 }
 
+#brackets-node-debugger-content .hidden {
+	display: none;
+}
+
 #status-bar #node-debugger-indicator.ion-android-developer {
     color: #F74687;
     cursor: pointer;

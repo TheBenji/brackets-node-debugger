@@ -99,6 +99,7 @@ function evaluate(com) {
 	debug.sendCommand(obj);
 }
 
+/* Shouldn't be needed anymore
 function lookup(handles, callback) {
     var obj = {};
     obj.command = 'lookup';
@@ -108,6 +109,7 @@ function lookup(handles, callback) {
 
     debug.sendCommand(obj);
 }
+*/
 
 function _recursiveLookup(handles, depth, objects, callback) {
 	debug.sendCommand({
