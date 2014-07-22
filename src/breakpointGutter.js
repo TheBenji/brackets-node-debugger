@@ -40,7 +40,7 @@ define(function (require, exports) {
 	}
 
     /*
-    *   Update gutters, call on document change
+    * Set all gutters for the currentDocument
     */
 	function _updateGutters() {
 		if (!cm) { return; }
@@ -50,6 +50,32 @@ define(function (require, exports) {
             gutters.unshift(gutterName);
             cm.setOption("gutters", gutters);
             cm.on("gutterClick", gutterClick);
+        }
+
+		//Set all the gutters now
+		breakpoints.forEach(function(bp) {
+			if(bp.fullPath === cd) {
+				var $marker = $("<div>")
+					.addClass('breakpoint-gutter')
+					.html("●");
+
+            	bp.cm.setGutterMarker( bp.line, gutterName, $marker[0] );
+			}
+		});
+	}
+
+	/*
+	* remove all gutters from the current document
+	*/
+	function _clearGutters() {
+	  	if(!cm) { return; }
+		var gutters = cm.getOption("gutters").slice(0),
+        io = gutters.indexOf(gutterName);
+        if (io !== -1) {
+            gutters.splice(io, 1);
+            cm.clearGutter(gutterName);
+            cm.setOption("gutters", gutters);
+            cm.off("gutterClick", gutterClick);
         }
 	}
 
@@ -73,7 +99,7 @@ define(function (require, exports) {
 
 		if(info.gutterMarkers && info.gutterMarkers[gutterName]) {
             var bp = _.find(breakpoints, function(obj) {
-                return obj.line === n && cm === obj.cm;
+                return obj.line === n && cd === obj.fullPath;
             });
             _nodeDebuggerDomain.exec("removeBreakpoint", bp.breakpoint);
             cm.setGutterMarker( bp.line, gutterName, null );
@@ -121,10 +147,7 @@ define(function (require, exports) {
     * Removes all Breakpoints
     */
     function removeAllBreakpoints() {
-        breakpoints.forEach(function(bp) {
-            bp.cm.setGutterMarker( bp.line, gutterName, null);
-            _nodeDebuggerDomain.exec("removeBreakpoint", bp.breakpoint);
-        });
+		_clearGutters();
         //Delete all
         breakpoints = [];
     }
@@ -141,14 +164,15 @@ define(function (require, exports) {
             breakpoints.forEach(function(bp) {
                 _nodeDebuggerDomain.exec("setBreakpoint", bp.fullPath, bp.line);
             });
-            //TODO: Reload all Breakpoints?
+            //NOTE: Reload all Breakpoints?
             //Request list of actual set breakpoints
             //_nodeDebuggerDomain.exec("getBreakpoints");
         }
     }
 
     $(DocumentManager).on("currentDocumentChange", function () {
-        _updateCm();
+        _clearGutters();
+		_updateCm();
         _updateGutters();
     });
 
