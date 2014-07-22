@@ -3,6 +3,7 @@ var debugConnector = require('./lib/debug.js').debugConnector;
 
 var _domainManager,
 	debug,
+	_maxDeep,
     _autoConnect;
 
 
@@ -85,7 +86,7 @@ function evaluate(com) {
             body.properties.forEach(function(h) {
                 handles.push(h.ref);
             });
-            lookup(handles, function(cmd, b) {
+            _recursiveLookup(handles, 0, {}, function(cmd, b) {
                 //Add the lookup stuff and emit the event
                 body.lookup = b;
                 _domainManager.emitEvent("brackets-node-debugger", "eval", body);
@@ -108,6 +109,39 @@ function lookup(handles, callback) {
     debug.sendCommand(obj);
 }
 
+function _recursiveLookup(handles, depth, objects, callback) {
+	debug.sendCommand({
+		"command": "lookup",
+		"arguments": { 'handles': handles },
+		"callback": function(c, body) {
+
+			var newHandles = [];
+			//Go through every object, get the handles and send it again
+			Object.keys(body).forEach(function(b){
+				b = body[b];
+				if(b.type === 'object' && b.properties) {
+					b.properties.forEach(function(p) {
+						newHandles.push(p.ref);
+					});
+				}
+			});
+
+
+			Object.keys(body).forEach(function(o){
+				o = body[o];
+				objects[o.handle] = o;
+			});
+
+			depth++;
+			if(depth < _maxDeep) {
+				_recursiveLookup(newHandles, depth, objects, callback);
+			} else {
+				callback(c, objects);
+			}
+		}
+	});
+}
+
 function getBreakpoints() {
     debug.sendCommand({
         "command": "listbreakpoints",
@@ -119,6 +153,8 @@ function getBreakpoints() {
 
 function start(port, host, autoConnect) {
     _autoConnect = autoConnect;
+	//TODO Make it configurable
+	_maxDeep = 3;
 
     if(!debug) {
         debug = new debugConnector();
