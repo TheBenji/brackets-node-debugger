@@ -2,19 +2,22 @@
 	color: #822;
 }
 
+#brackets-node-debugger-log .toolbar.bottom{
+	padding: 0;
+}
+
 #brackets-node-debugger-log a.icon {
     margin: 0 10px;
     color: #bbb;
     font-size: 18px;
 }
 
-#brackets-node-debugger-log a.info {
-    margin: 0 15px;
+#brackets-node-debugger-log .toolbar.bottom a {
+    margin-left: 15px;
     color: #bbb;
-    font-size: 18px;
 }
 
-#brackets-node-debugger-log a.info:hover {
+#brackets-node-debugger-log .toolbar.bottom a:hover {
     color: #78B2F2;
 }
 
