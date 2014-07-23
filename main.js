@@ -141,7 +141,7 @@ define(function (require, exports, module) {
 		});
 		
 		$(nodeDebuggerDomain).on("eval", function(e, body) {
-			console.log(body);
+			//console.log(body);
             var $wrapper = $('<span>').addClass('wrapper');
             var $output = nodeDebuggerPanel.createEvalHTML(body, 0, body.lookup);
 
