@@ -68,11 +68,32 @@
 
 #brackets-node-debugger-content .type {
     color: #78B2F2;
-    padding-right: 10px;
+    padding-right: 5px;
+}
+
+#brackets-node-debugger-content .var-name {
+	color: #822;
 }
 
 #brackets-node-debugger-content .hidden {
 	display: none;
+}
+
+.brackets-node-debugger-log span.object {
+	display: block;
+	padding-right: 10px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.brackets-node-debugger-log span.object:before {
+	padding-right: 5px;
+}
+
+.brackets-node-debugger-log span.object ~ .var{
+	display: block;
+	padding-left: 10px;
 }
 
 #status-bar #node-debugger-indicator.ion-android-developer {

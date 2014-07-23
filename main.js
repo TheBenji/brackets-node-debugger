@@ -143,8 +143,7 @@ define(function (require, exports, module) {
 		$(nodeDebuggerDomain).on("eval", function(e, body) {
 			console.log(body);
             var $wrapper = $('<span>').addClass('wrapper');
-            $('<span>').addClass('type').text(body.type).appendTo($wrapper);
-            var $output = createEvalHTML(body, 0, body.lookup);
+            var $output = nodeDebuggerPanel.createEvalHTML(body, 0, body.lookup);
 
 			/*
             if(body.type === 'object' && body.properties && body.lookup) {
@@ -159,30 +158,6 @@ define(function (require, exports, module) {
             $output.appendTo($wrapper);
 			nodeDebuggerPanel.log($wrapper);
 		});
-
-		function createEvalHTML(body, depth, lookup) {
-			console.log('Create: ');
-			console.log(body);
-			var $html = $('<span>');
-			depth++;
-
-			if(body.type === 'object' && body.properties) {
-                var o = {};
-                body.properties.forEach(function(p) {
-					if(lookup[p.ref]) {
-                    	o[p.name] = lookup[p.ref].text;
-						if(depth < maxDeepth) {
-							createEvalHTML(lookup[p.ref], depth, lookup).addClass('hidden').appendTo($html);
-						}
-					}
-                });
-                $html.prepend( $('<span>').text(JSON.stringify(o)) );
-            } else {
-                $html.prepend( $('<span>').text(body.text) );
-            }
-			return $html;
-
-		}
 
 
         $(nodeDebuggerDomain).on("setBreakpoint", function(e, bp) {
@@ -227,6 +202,11 @@ define(function (require, exports, module) {
 
 		$logPanel.find('.removeBP').on('click', function() {
             breakpointGutters.removeAllBreakpoints();
+		});
+		
+		$logPanel.find('.ion-arrow-right-b').on('click', function(e) {
+			console.log('toooglle');
+			console.log(e);
 		});
 
         //Open panel on status indicator click
