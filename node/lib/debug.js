@@ -105,10 +105,10 @@ debugConnector.prototype.sendCommand = function(obj) {
 		//console.log('Send: ');
 		//console.log(str);
 
-        self._waitingForResponse[obj.seq] = obj;
+		self._waitingForResponse[obj.seq] = obj;
 		self.socket.write( "Content-Length:" + str.length + "\r\n\r\n" + str);
 	} else {
-        //Just ignore it, that is ok
+		//Just ignore it, that is ok
 		//console.error('[Node-Debugger] Can\'t send command, not connected!');
 	}
 };

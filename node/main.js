@@ -39,38 +39,38 @@ function stepContinue() {
 }
 
 function setBreakpoint(file, line) {
-    var obj = {};
-    var fullPath = file;
-    //Windows work around
-    if(file.search(':') !== -1) {
-        file = file.split('/').join('\\');
-    }
+	var obj = {};
+	var fullPath = file;
+	//Windows work around
+	if(file.search(':') !== -1) {
+		file = file.split('/').join('\\');
+	}
 
-    obj.command = 'setbreakpoint';
-    obj.arguments = {
-        'type' : 'script',
-        'target' : file,
-        'line': line
-    };
+	obj.command = 'setbreakpoint';
+	obj.arguments = {
+		'type' : 'script',
+		'target' : file,
+		'line': line
+	};
 
-    obj.callback = function(c, body) {
-        body.fullPath = fullPath;
-      _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", body);
-    };
+	obj.callback = function(c, body) {
+		body.fullPath = fullPath;
+	  _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", body);
+	};
 
-    debug.sendCommand(obj);
+	debug.sendCommand(obj);
 }
 
 function removeBreakpoint(breakpoint) {
-    var obj = {};
-    obj.command = 'clearbreakpoint';
-    obj.arguments = { 'breakpoint' : breakpoint };
+	var obj = {};
+	obj.command = 'clearbreakpoint';
+	obj.arguments = { 'breakpoint' : breakpoint };
 
-    obj.callback = function(c, body) {
-      _domainManager.emitEvent("brackets-node-debugger", "clearBreakpoint", body);
-    };
+	obj.callback = function(c, body) {
+	_domainManager.emitEvent("brackets-node-debugger", "clearBreakpoint", body);
+	};
 
-    debug.sendCommand(obj);
+	debug.sendCommand(obj);
 }
 
 function evaluate(com) {
@@ -78,23 +78,23 @@ function evaluate(com) {
 	obj.command = 'evaluate';
 	obj.arguments = { 'expression' : com };
 
-    obj.callback = function(c, body) {
-        //If this is from type object get the properties as well
-        if(body.type === 'object' && body.properties) {
-            //Get all handles and send lookup
-            var handles = [];
-            body.properties.forEach(function(h) {
-                handles.push(h.ref);
-            });
-            _recursiveLookup(handles, 0, {}, function(cmd, b) {
-                //Add the lookup stuff and emit the event
-                body.lookup = b;
-                _domainManager.emitEvent("brackets-node-debugger", "eval", body);
-            });
-        } else {
-            _domainManager.emitEvent("brackets-node-debugger", "eval", body);
-        }
-    };
+	obj.callback = function(c, body) {
+		//If this is from type object get the properties as well
+		if(body.type === 'object' && body.properties) {
+			//Get all handles and send lookup
+			var handles = [];
+			body.properties.forEach(function(h) {
+				handles.push(h.ref);
+			});
+			_recursiveLookup(handles, 0, {}, function(cmd, b) {
+				//Add the lookup stuff and emit the event
+				body.lookup = b;
+				_domainManager.emitEvent("brackets-node-debugger", "eval", body);
+			});
+		} else {
+			_domainManager.emitEvent("brackets-node-debugger", "eval", body);
+		}
+	};
 	
 	debug.sendCommand(obj);
 }
@@ -144,29 +144,37 @@ function _recursiveLookup(handles, depth, objects, callback) {
 	});
 }
 
+function disconnect() {
+	//Make sure that you don't connect again
+	_autoConnect = false;
+	debug.sendCommand({
+		"command": "disconnect"
+	});
+}
+
 function getBreakpoints() {
-    debug.sendCommand({
-        "command": "listbreakpoints",
-        "callback": function(c, body) {
-            _domainManager.emitEvent("brackets-node-debugger", "allBreakpoints", body);
-        }
-    });
+	debug.sendCommand({
+		"command": "listbreakpoints",
+		"callback": function(c, body) {
+			_domainManager.emitEvent("brackets-node-debugger", "allBreakpoints", body);
+		}
+	});
 }
 
 function start(port, host, autoConnect) {
-    _autoConnect = autoConnect;
+	_autoConnect = autoConnect;
 	//TODO Make it configurable
 	_maxDeep = 3;
 
-    if(!debug) {
-        debug = new debugConnector();
-        setEventHandlers();
-    }
-    if(!debug.connected) {
-        debug.port = port;
-        debug.host = host;
-        debug.connect();
-    }
+	if(!debug) {
+		debug = new debugConnector();
+		setEventHandlers();
+	}
+	if(!debug.connected) {
+		debug.port = port;
+		debug.host = host;
+		debug.connect();
+	}
 }
 
 function setEventHandlers() {
@@ -241,6 +249,14 @@ function init(domainManager) {
 		"Continue with action 'next'"
 	);
 	
+	_domainManager.registerCommand(
+		"brackets-node-debugger",
+		"disconnect",
+		disconnect,
+		false,
+		"Disconnect from the V8 debugger"
+	);
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"stepIn",
