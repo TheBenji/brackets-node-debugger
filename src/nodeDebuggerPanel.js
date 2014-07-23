@@ -1,14 +1,14 @@
 /*global define, $ */
 define(function (require, exports) {
-    "use strict";
+	"use strict";
 
-    var _nodeDebuggerDomain,
-        _panel,
+	var _nodeDebuggerDomain,
+		_panel,
 		_maxDepth = 3,
-        history = [],
-        historyCurrent = 0,
-        $debuggerContent = $(null),
-        $debuggerInput = $(null);
+		history = [],
+		historyCurrent = 0,
+		$debuggerContent = $(null),
+		$debuggerInput = $(null);
 
 
 	//Adds a new line to the log within brackets
@@ -120,10 +120,11 @@ define(function (require, exports) {
 	
 	function evalHTMLonClick(e) {
 		var $t = $(e.target);
-		if($t.hasClass('ion-arrow-right-b')) {
+		if( $t.hasClass('ion-arrow-right-b') ) {
 			$t.removeClass('ion-arrow-right-b').addClass('ion-arrow-down-b');
 			$t.siblings().removeClass('hidden');
-		} else {
+		} 
+		if( $t.hasClass('ion-arrow-down-b') ) {
 			$t.removeClass('ion-arrow-down-b').addClass('ion-arrow-right-b');
 			$t.siblings().addClass('hidden');
 		}
