@@ -37,7 +37,7 @@ define(function (require, exports, module) {
 	var $logPanel = $(null),
 		activeLine = null,
 		highlightCm = null,
-		maxDeepth = 3;
+		maxDeepth;
 
 	prefs.definePreference("debugger-port", "number", 5858);
 	prefs.definePreference("debugger-host", "string", "localhost");
@@ -46,6 +46,7 @@ define(function (require, exports, module) {
 	prefs.definePreference("autoConnectOnToggle", "boolean", false);
 	prefs.definePreference("autoConnect", "boolean", false);
 	prefs.definePreference("removeBreakpointsOnDisconnect", "boolean", false);
+	prefs.definePreference("lookupDepth", "number", 4);
 
 	var nodeDebuggerDomain = new NodeDomain("brackets-node-debugger", ExtensionUtils.getModulePath(module, "node/main"));
 
@@ -65,12 +66,13 @@ define(function (require, exports, module) {
 			});
 		}
 
+		maxDeepth = prefs.get("lookupDepth");
 		breakpointGutters.init(nodeDebuggerDomain);
-		nodeDebuggerPanel.init(nodeDebuggerDomain, $logPanel);
+		nodeDebuggerPanel.init(nodeDebuggerDomain, $logPanel, maxDeepth);
 
 		//AutoConnect
 		if(prefs.get("autoConnect")) {
-			nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), true);
+			nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), true, maxDeepth);
 		var $sb = $("<div>").addClass("ion-android-developer");
 		StatusBar.addIndicator("node-debugger-indicator", $sb, true, null, "Node.js Debugger");
 		}
@@ -182,7 +184,7 @@ define(function (require, exports, module) {
 
 		$logPanel.find('.activate').on('click', function() {
 			//Starts the socket and connects to the V8 debugger
-			nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false);
+			nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false, maxDeepth);
 		});
 
 		$logPanel.find('.next').on('click', function() {

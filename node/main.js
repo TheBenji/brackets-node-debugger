@@ -161,10 +161,10 @@ function getBreakpoints() {
 	});
 }
 
-function start(port, host, autoConnect) {
+function start(port, host, autoConnect, maxDepth) {
 	_autoConnect = autoConnect;
-	//TODO Make it configurable
-	_maxDeep = 3;
+
+	_maxDeep = maxDepth;
 
 	if(!debug) {
 		debug = new debugConnector();
@@ -229,16 +229,22 @@ function init(domainManager) {
 			type: "number",
 			description: "The port the V8 debugger is running on"
 		},
-         {
+		 {
 			name: "host",
 			type: "string",
 			description: "The host the V8 debugger is running on"
 		},
-         {
+		 {
 			name: "autoConnect",
 			type: "boolean",
 			description: "Try to reconnect on error"
-		}]
+		},
+		 {
+			name: "maxDepth",
+			type: "number",
+			description: "The max depth the lookup goes down"
+		}
+		]
 	);
 	
 	_domainManager.registerCommand(

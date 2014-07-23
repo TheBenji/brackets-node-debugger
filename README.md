@@ -47,6 +47,7 @@ All options use the `brackets-node-debugger.`-prefix
 |autoConnectOnToggle|false|Connect to the debugger as soon as you open the Node.js Debugger Panel|
 |autoConnect|false|Connect always to the debugger as soon as available, powerful if your node process restarts on file changes|
 |removeBreakpointsOnDisconnect|false|Remove all Breakpoints when Debugger disconnects|
+|lookupDepth|4|Defines how deep the lookup max goes if you evaluate something|
 
 Bugs & Contributing
 -----------

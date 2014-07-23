@@ -24,7 +24,8 @@ define(function (require, exports) {
 		$debuggerContent.scrollTop( 9999999999999 );
 	}
 
-	function init(nodeDebuggerDomain, panel) {
+	function init(nodeDebuggerDomain, panel, maxDepth) {
+		_maxDepth = maxDepth;
 		_nodeDebuggerDomain = nodeDebuggerDomain;
 		_panel = panel;
 		$debuggerContent = _panel.find('#brackets-node-debugger-content');
@@ -118,6 +119,9 @@ define(function (require, exports) {
 		return $html;
 	}
 	
+	/*
+	* click event handler to give more Information about an object in the console
+	*/
 	function evalHTMLonClick(e) {
 		var $t = $(e.target);
 		if( $t.hasClass('ion-arrow-right-b') ) {
