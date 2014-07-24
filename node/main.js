@@ -6,30 +6,39 @@ var _domainManager,
 	_maxDeep,
 	_autoConnect;
 
+var stepCallback = function(c, b, running) {
+	if(running) {
+		_domainManager.emitEvent("brackets-node-debugger", "running");
+	}
+};
 
 function stepNext() {
 	debug.sendCommand({
 		"command": "continue",
-		"arguments": {"stepaction": "next "}
+		"callback": stepCallback,
+		"arguments": {"stepaction": "next"}
 	});
 }
 
 function stepIn() {
 	debug.sendCommand({
 		"command": "continue",
-		"arguments": {"stepaction": "in "}
+		"callback": stepCallback,
+		"arguments": {"stepaction": "in"}
 	});
 }
 
 function stepOut() {
 	debug.sendCommand({
 		"command": "continue",
-		"arguments": {"stepaction": "out "}
+		"callback": stepCallback,
+		"arguments": {"stepaction": "out"}
 	});
 }
 
 function stepContinue() {
 	debug.sendCommand({
+		"callback": stepCallback,
 		"command": "continue"
 	});
 }
@@ -328,6 +337,11 @@ function setEventHandlers() {
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"connect"
+	);
+
+	_domainManager.registerEvent(
+		"brackets-node-debugger",
+		"running"
 	);
 	
 	_domainManager.registerEvent(
