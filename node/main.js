@@ -4,38 +4,34 @@ var debugConnector = require('./lib/debug.js').debugConnector;
 var _domainManager,
 	debug,
 	_maxDeep,
-    _autoConnect;
+	_autoConnect;
 
 
 function stepNext() {
-	var obj = {};
-	obj.command = 'continue';
-	obj.arguments = { 'stepaction': 'next' };
-	
-	debug.sendCommand(obj);
+	debug.sendCommand({
+		"command": "continue",
+		"arguments": {"stepaction": "next "}
+	});
 }
 
 function stepIn() {
-	var obj = {};
-	obj.command = 'continue';
-	obj.arguments = { 'stepaction': 'in' };
-	
-	debug.sendCommand(obj);
+	debug.sendCommand({
+		"command": "continue",
+		"arguments": {"stepaction": "in "}
+	});
 }
 
 function stepOut() {
-	var obj = {};
-	obj.command = 'continue';
-	obj.arguments = { 'stepaction' : 'out' };
-	
-	debug.sendCommand(obj);
+	debug.sendCommand({
+		"command": "continue",
+		"arguments": {"stepaction": "out "}
+	});
 }
 
 function stepContinue() {
-	var obj = {};
-	obj.command = 'continue';
-	
-	debug.sendCommand(obj);
+	debug.sendCommand({
+		"command": "continue"
+	});
 }
 
 function setBreakpoint(file, line) {
@@ -98,18 +94,6 @@ function evaluate(com) {
 	
 	debug.sendCommand(obj);
 }
-
-/* Shouldn't be needed anymore
-function lookup(handles, callback) {
-    var obj = {};
-    obj.command = 'lookup';
-    obj.arguments = { 'handles': handles };
-
-    obj.callback = callback;
-
-    debug.sendCommand(obj);
-}
-*/
 
 function _recursiveLookup(handles, depth, objects, callback) {
 	debug.sendCommand({
@@ -183,40 +167,40 @@ function setEventHandlers() {
 		_domainManager.emitEvent("brackets-node-debugger", "connect");
 	});
 
-    debug.on('error', function(err) {
-        if(_autoConnect) {
+	debug.on('error', function(err) {
+		if(_autoConnect) {
 			if(err.errno !== 'ECONNREFUSED') {
 				_domainManager.emitEvent("brackets-node-debugger", "close", err.errno);
 			}
-        } else {
-            _domainManager.emitEvent("brackets-node-debugger", "close", err.errno);
-        }
-    });
-	
+		} else {
+			_domainManager.emitEvent("brackets-node-debugger", "close", err.errno);
+		}
+	});
+
 	debug.on('close', function(err) {
 		if(_autoConnect) {
-		    //Try in a second again
-            setTimeout(function() {
-                start(debug.port, debug.host, _autoConnect);
-            }, 2000);
+			//Try in a second again
+			setTimeout(function() {
+				start(debug.port, debug.host, _autoConnect);
+			}, 2000);
 		}
 
-        if(!err) {
+		if(!err) {
 		  _domainManager.emitEvent("brackets-node-debugger", "close", false);
-        }
+		}
 	});
-	
+
 	debug.on('break', function(body) {
 		_domainManager.emitEvent("brackets-node-debugger", "break", body);
 	});
-}
+	}
 
-function init(domainManager) {
+	function init(domainManager) {
 	_domainManager = domainManager;
-    
-    if (!domainManager.hasDomain("brackets-node-debugger")) {
-        domainManager.registerDomain("brackets-node-debugger", {major: 0, minor: 1});
-    }
+
+	if (!domainManager.hasDomain("brackets-node-debugger")) {
+		domainManager.registerDomain("brackets-node-debugger", {major: 0, minor: 1});
+	}
 	
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
@@ -313,7 +297,7 @@ function init(domainManager) {
 			type: "string",
 			description: "The path to the file where the breakpoint is to set"
 		},
-        {
+		{
 			name: "line",
 			type: "number",
 			description: "The line number where the breakpoint is to set"
@@ -349,7 +333,7 @@ function init(domainManager) {
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"close",
-        [{
+		[{
 			name: "error",
 			type: "string",
 			description: "Reason for close"
