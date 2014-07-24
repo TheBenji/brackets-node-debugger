@@ -2,19 +2,22 @@
 	color: #822;
 }
 
+#brackets-node-debugger-log .toolbar.bottom{
+	padding: 0;
+}
+
 #brackets-node-debugger-log a.icon {
     margin: 0 10px;
     color: #bbb;
     font-size: 18px;
 }
 
-#brackets-node-debugger-log a.info {
-    margin: 0 15px;
+#brackets-node-debugger-log .toolbar.bottom a {
+    margin-left: 15px;
     color: #bbb;
-    font-size: 18px;
 }
 
-#brackets-node-debugger-log a.info:hover {
+#brackets-node-debugger-log .toolbar.bottom a:hover {
     color: #78B2F2;
 }
 
@@ -44,7 +47,9 @@
 }
 
 #brackets-node-debugger-input {
-    height: 20px;
+    display: block;
+	min-width: 50%;
+	height: 20px;
     max-height: 20px;
     padding-left: 25px;
     float: left;
@@ -65,7 +70,32 @@
 
 #brackets-node-debugger-content .type {
     color: #78B2F2;
-    padding-right: 10px;
+    padding-right: 5px;
+}
+
+#brackets-node-debugger-content .var-name {
+	color: #822;
+}
+
+#brackets-node-debugger-content .hidden {
+	display: none;
+}
+
+.brackets-node-debugger-log span.object {
+	display: block;
+	padding-right: 10px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.brackets-node-debugger-log span.object:before {
+	padding-right: 5px;
+}
+
+.brackets-node-debugger-log span.object ~ .var{
+	display: block;
+	padding-left: 10px;
 }
 
 #status-bar #node-debugger-indicator.ion-android-developer {

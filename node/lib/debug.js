@@ -10,16 +10,16 @@ var debugConnector = function() {
 	this.connected = false;
 	
 	this._seq = 0;
-    this._waitingForResponse = {};
-    this._body = '';
-    this._header = true;
-    this._contentLength = 0;
+	this._waitingForResponse = {};
+	this._body = '';
+	this._header = true;
+	this._contentLength = 0;
 };
 
 util.inherits(debugConnector, events.EventEmitter);
 
 debugConnector.prototype.connect = function() {
-    var self = this;
+	var self = this;
 	//Create connection to V8 Debugger
 	this.socket = net.createConnection(self.port, self.host);
 	
@@ -38,58 +38,58 @@ debugConnector.prototype.connect = function() {
 	});
 	
 	this.socket.on('data', function(data) {
-        var l = data.toString().split('\r\n');
-        //console.log( data.toString() );
+		var l = data.toString().split('\r\n');
+		//console.log( data.toString() );
 
-        l.forEach(function( line ) {
+		l.forEach(function( line ) {
 
-            //after the header there is just an empty line
-            if (!line) {
-                self._header = false;
-                return;
-            }
+			//after the header there is just an empty line
+			if (!line) {
+				self._header = false;
+				return;
+			}
 
-            //If we are still in the header check the content length
-            if( self._header ) {
-                var h = line.split(':');
-                //Check if that is really the content-length
-                if( h[0] === 'Content-Length') {
-                    self._contentLength = parseInt(h[1], 10);
-                }
-            } else {
-                //If we're in the body save the content
-                self._body += line;
-            }
-        });
+			//If we are still in the header check the content length
+			if( self._header ) {
+				var h = line.split(':');
+				//Check if that is really the content-length
+				if( h[0] === 'Content-Length') {
+					self._contentLength = parseInt(h[1], 10);
+				}
+			} else {
+				//If we're in the body save the content
+				self._body += line;
+			}
+		});
 
-        //FIXME: Do that properly...
-        if(self._body.length >= self._contentLength) {
-            try {
-                var body = JSON.parse( self._body );
-                //console.log(body);
+		//FIXME: Do that properly...
+		if(self._body.length >= self._contentLength) {
+			try {
+				var body = JSON.parse( self._body );
+				//console.log(body);
 
-                if(body.event === 'break') {
-                    self.emit('break', body.body);
-                }
+				if(body.event === 'break') {
+					self.emit('break', body.body);
+				}
 
-                if(body.type === 'response') {
+				if(body.type === 'response') {
 
-                    if(self._waitingForResponse[body.request_seq].callback) {
-                        self._waitingForResponse[body.request_seq].callback(body.command, body.body);
-                    }
+					if(self._waitingForResponse[body.request_seq].callback) {
+						self._waitingForResponse[body.request_seq].callback(body.command, body.body);
+					}
 
-                    delete self._waitingForResponse[body.request_seq];
-                }
-            } catch(e) {
-                //Just ignore it for now
-                //TODO Print node/debugger version on connect
-                //console.log('Unvalid response: ' + data.toString() );
-            }
+					delete self._waitingForResponse[body.request_seq];
+				}
+			} catch(e) {
+				//Just ignore it for now
+				//TODO Print node/debugger version on connect
+				//console.log('Unvalid response: ' + data.toString() );
+			}
 
-            //reset header && body
-            self._header = true;
-            self._body = '';
-        }
+			//reset header && body
+			self._header = true;
+			self._body = '';
+		}
 	});
 };
 
@@ -105,10 +105,10 @@ debugConnector.prototype.sendCommand = function(obj) {
 		//console.log('Send: ');
 		//console.log(str);
 
-        self._waitingForResponse[obj.seq] = obj;
+		self._waitingForResponse[obj.seq] = obj;
 		self.socket.write( "Content-Length:" + str.length + "\r\n\r\n" + str);
 	} else {
-        //Just ignore it, that is ok
+		//Just ignore it, that is ok
 		//console.error('[Node-Debugger] Can\'t send command, not connected!');
 	}
 };
