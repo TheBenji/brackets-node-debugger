@@ -127,8 +127,7 @@ define(function (require, exports) {
 		if( $t.hasClass('ion-arrow-right-b') ) {
 			$t.removeClass('ion-arrow-right-b').addClass('ion-arrow-down-b');
 			$t.siblings().removeClass('hidden');
-		}
-		if( $t.hasClass('ion-arrow-down-b') ) {
+		} else if( $t.hasClass('ion-arrow-down-b') ) {
 			$t.removeClass('ion-arrow-down-b').addClass('ion-arrow-right-b');
 			$t.siblings().addClass('hidden');
 		}
