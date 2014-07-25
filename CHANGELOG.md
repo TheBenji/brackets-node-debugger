@@ -4,6 +4,17 @@
 [Click here](https://github.com/TheBenji/brackets-node-debugger#how-to-use-it) for more Information
 If you find a bug please open an issue on github!
 
+## 0.1.5
+* HOTFIX: Stupid error
+
+## 0.1.4
+* ADD: Toggle Objects on evaluation
+* ADD: Clear console button
+* FIX: Breakpoints work a bit better now
+* FIX: Disconnect from Debugger when Brackets closes (or reloads)
+* FIX: Auto connect works better now
+* ...and some more small tweaks
+
 ## 0.1.3
 * ADD: Save breakpoints on reconnect
 * ADD: Option for auto connect
