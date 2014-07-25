@@ -63,17 +63,12 @@ define(function (require, exports) {
 	* click event handler to give more Information about an object in the console
 	*/
 	function evalHTMLonClick(e) {
-		console.log('Clicked');
-
 		var $t = $(e.target);
-		console.log($t);
 		if( $t.hasClass('ion-arrow-right-b') ) {
-			console.log('yup');
 			$t.removeClass('ion-arrow-right-b').addClass('ion-arrow-down-b');
 			$t.siblings().removeClass('hidden');
 		} else {
 			if( $t.hasClass('ion-arrow-down-b') ) {
-				console.log('yup again');
 				$t.removeClass('ion-arrow-down-b').addClass('ion-arrow-right-b');
 				$t.siblings().addClass('hidden');
 			}
@@ -83,7 +78,7 @@ define(function (require, exports) {
 	/**
 	* Initialize the panel
 	*
-	* @params {NodeDomain} nodeDebuggerDomain
+	* @param {NodeDomain} nodeDebuggerDomain
 	**/
 	debuggerPanel.init = function(nodeDebuggerDomain) {
 		//Create the BottomPanel

@@ -3,7 +3,7 @@ var debugConnector = require('./lib/debug.js').debugConnector;
 
 var _domainManager,
 	debug,
-	_maxDeep,
+	_maxDepth,
 	_autoConnect;
 
 var stepCallback = function(c, b, running) {
@@ -128,7 +128,7 @@ function _recursiveLookup(handles, depth, objects, callback) {
 			});
 
 			depth++;
-			if(depth < _maxDeep) {
+			if(depth < _maxDepth) {
 				_recursiveLookup(newHandles, depth, objects, callback);
 			} else {
 				callback(c, objects);
@@ -157,7 +157,7 @@ function getBreakpoints() {
 function start(port, host, autoConnect, maxDepth) {
 	_autoConnect = autoConnect;
 
-	_maxDeep = maxDepth;
+	_maxDepth = maxDepth;
 
 	if(!debug) {
 		debug = new debugConnector();
