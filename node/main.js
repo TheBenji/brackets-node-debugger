@@ -104,6 +104,28 @@ function evaluate(com) {
 	debug.sendCommand(obj);
 }
 
+//Get all the arguments and locals for the current frame
+//TODO Get the scopes and then the locals from the scope to get more information
+function getFrame() {
+	debug.sendCommand({
+		"command": "frame",
+		"callback": function(c, body) {
+			if(body.arguments && body.arguments.length > 0) {
+				var handles = [];
+				body.arguments.forEach(function(b) {
+					handles.push(b.value.ref);
+				});
+
+				_recursiveLookup(handles, 0, {}, function(cmd, b) {
+					//Add the lookup stuff and emit the event
+					body.lookup = b;
+					_domainManager.emitEvent("brackets-node-debugger", "frame", body);
+				});
+			}
+		}
+	});
+}
+
 function _recursiveLookup(handles, depth, objects, callback) {
 	debug.sendCommand({
 		"command": "lookup",
@@ -239,7 +261,7 @@ function setEventHandlers() {
 		}
 		]
 	);
-	
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"stepNext",
@@ -247,7 +269,7 @@ function setEventHandlers() {
 		false,
 		"Continue with action 'next'"
 	);
-	
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"disconnect",
@@ -279,8 +301,8 @@ function setEventHandlers() {
 		false,
 		"Continue running the script"
 	);
-	
-	
+
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"eval",
@@ -293,7 +315,14 @@ function setEventHandlers() {
 			description: "The expression to evaluate"
 		}]
 	);
-	
+
+	_domainManager.registerCommand(
+		"brackets-node-debugger",
+		"getFrame",
+		getFrame,
+		false,
+		"Get the current frame with all arguments/locals"
+	);
 
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
@@ -397,6 +426,16 @@ function setEventHandlers() {
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"allBreakpoints",
+		[{
+			name: "args",
+			type: "object",
+			description: "The Arguments V8 sends us as response"
+		}]
+	);
+
+	_domainManager.registerEvent(
+		"brackets-node-debugger",
+		"frame",
 		[{
 			name: "args",
 			type: "object",

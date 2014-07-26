@@ -39,9 +39,11 @@ define(function (require, exports, module) {
 			//Load Modules
 			var debug = require('./debugger/debugger').debug,
 				breakpoints = require('./breakpoints/breakpoints').breakpoints;
+				//locals = require('./locals/locals').locals;
 
 			debug.init(nodeDebuggerDomain);
 			breakpoints.init(nodeDebuggerDomain);
+			//locals.init(nodeDebuggerDomain);
 
 			//Auto Connector active
 			if(prefs.get("autoConnect")) {
