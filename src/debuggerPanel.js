@@ -85,6 +85,12 @@ define(function (require, exports) {
 		debuggerPanel.panel = PanelManager.createBottomPanel("brackets-node-debugger.log", $(logContainerHTML));
 		debuggerPanel.$logPanel = debuggerPanel.panel.$panel;
 
+		//Make sure the content size is always ok
+		$(PanelManager).on('editorAreaResize', function() {
+			var height = debuggerPanel.$logPanel.height();
+			debuggerPanel.$debuggerContent.height(height - 50);
+		});
+
 		_maxDepth = prefs.get("lookupDepth");
 		_nodeDebuggerDomain = nodeDebuggerDomain;
 
