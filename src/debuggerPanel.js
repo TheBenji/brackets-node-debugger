@@ -23,10 +23,12 @@ define(function (require, exports) {
 	/*
 	* KeyHandler for the inputfield
 	*/
-	function onKeyDown(e) {
+	function onKeyUp(e) {
 		//On enter send command
 		if(e.keyCode == 13) {
-			var com = debuggerPanel.$debuggerInput.html();
+			//Remove all may existing suggestions
+			debuggerPanel.$debuggerInput.find('.suggestion').remove();
+			var com = debuggerPanel.$debuggerInput.text();
 
 			if(com.length > 0) {
 				history.push(com);
@@ -99,7 +101,7 @@ define(function (require, exports) {
 		debuggerPanel.$debuggerInput = debuggerPanel.$logPanel.find('#brackets-node-debugger-input');
 
 		//Add keydown handler to input
-		debuggerPanel.$debuggerInput.on('keydown', onKeyDown);
+		debuggerPanel.$debuggerInput.on('keyup', onKeyDown);
 
 		//Add help button
 		var $help = $('<a>').addClass('ion-help-circled info')
@@ -112,7 +114,7 @@ define(function (require, exports) {
 		debuggerPanel.addControlElement($clear, false, function() {
 			debuggerPanel.$debuggerContent.html(debuggerPanel.$debuggerInput);
 			//set the keyHandler again
-			debuggerPanel.$debuggerInput.on('keydown', onKeyDown);
+			debuggerPanel.$debuggerInput.on('keydown', onKeyUp);
 		});
 		debuggerPanel.addControlElement($help, false, function(){});
 

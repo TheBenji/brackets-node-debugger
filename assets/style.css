@@ -54,6 +54,10 @@
     float: left;
 }
 
+#brackets-node-debugger-input .suggestion {
+	color: #822;
+}
+
 #brackets-node-debugger-input:before {
     content: ">>";
     display: block;
