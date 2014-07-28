@@ -23,7 +23,7 @@ define(function (require, exports) {
 	/*
 	* KeyHandler for the inputfield
 	*/
-	function onKeyUp(e) {
+	function onKeyDown(e) {
 		//On enter send command
 		if(e.keyCode == 13) {
 			//Remove all may existing suggestions
@@ -114,7 +114,7 @@ define(function (require, exports) {
 		debuggerPanel.addControlElement($clear, false, function() {
 			debuggerPanel.$debuggerContent.html(debuggerPanel.$debuggerInput);
 			//set the keyHandler again
-			debuggerPanel.$debuggerInput.on('keydown', onKeyUp);
+			debuggerPanel.$debuggerInput.on('keydown', onKeyDown);
 		});
 		debuggerPanel.addControlElement($help, false, function(){});
 
