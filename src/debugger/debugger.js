@@ -98,7 +98,6 @@ define(function (require, exports) {
 			nodeDebuggerPanel.log( $('<span>').text('Debugger connected') );
 			nodeDebuggerPanel.$logPanel.find('.activate').addClass('ion-ios7-checkmark')
 									.removeClass('ion-ios7-close');
-			nodeDebuggerPanel.$logPanel.find('a.inactive').addClass('active').removeClass('inactive');
 			$('#node-debugger-indicator').addClass('connected');
 		});
 
