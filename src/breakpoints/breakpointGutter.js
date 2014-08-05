@@ -154,6 +154,9 @@ define(function (require, exports) {
 		});
 		//Delete all
 		breakpoints = [];
+		
+		//Update gutters again
+		_updateGutters();
 	}
 
 	/*
