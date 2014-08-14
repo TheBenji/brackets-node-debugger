@@ -136,6 +136,22 @@ define(function (require, exports) {
 			$output.appendTo($wrapper);
 			nodeDebuggerPanel.log($wrapper);
 		});
+
+		//control debugger with keyboard
+		$(document).on('keydown', function(e) {
+			console.log('keydown: ' + e.keyCode);
+			if(e.keyCode === 119) {
+				continueClickHandler();
+			}
+
+			if(e.keyCode === 121) {
+				nextClickHandler();
+			}
+
+			if(e.keyCode === 122) {
+				inClickHandler();
+			}
+		});
 	};
 
 
