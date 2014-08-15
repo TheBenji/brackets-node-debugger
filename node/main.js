@@ -195,7 +195,14 @@ function start(port, host, autoConnect, maxDepth) {
 function setEventHandlers() {
 
 	debug.on('connect', function() {
-		_domainManager.emitEvent("brackets-node-debugger", "connect");
+		//Get information
+		debug.sendCommand({
+			"command": "version",
+			"callback": function(c, body, running) {
+				body.running = running;
+				_domainManager.emitEvent("brackets-node-debugger", "connect", body);
+			}
+		});
 	});
 
 	debug.on('error', function(err) {
@@ -365,7 +372,12 @@ function setEventHandlers() {
 
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
-		"connect"
+		"connect",
+		[{
+			name: "body",
+			type: "Object",
+			description: "Response from the V8 debugger"
+		}]
 	);
 
 	_domainManager.registerEvent(

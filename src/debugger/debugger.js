@@ -94,11 +94,19 @@ define(function (require, exports) {
 		});
 
 		//If the Debugger connects highlight the UI parts that need to be highlighted
-		$(_nodeDebuggerDomain).on("connect", function() {
+		$(_nodeDebuggerDomain).on("connect", function(e, body) {
 			nodeDebuggerPanel.log( $('<span>').text('Debugger connected') );
 			nodeDebuggerPanel.$logPanel.find('.activate').addClass('ion-ios7-checkmark')
 									.removeClass('ion-ios7-close');
 			$('#node-debugger-indicator').addClass('connected');
+
+			console.log(body);
+
+			if(body.running) {
+				nodeDebuggerPanel.$logPanel.find('a.active').addClass('inactive').removeClass('active');
+			} else {
+				nodeDebuggerPanel.$logPanel.find('a.inactive').addClass('active').removeClass('inactive');
+			}
 		});
 
 		//If the Debugger disconnect remove all the highlights
@@ -139,7 +147,7 @@ define(function (require, exports) {
 
 		//control debugger with keyboard
 		$(document).on('keydown', function(e) {
-			console.log('keydown: ' + e.keyCode);
+			//console.log('keydown: ' + e.keyCode);
 			if(e.keyCode === 119) {
 				continueClickHandler();
 			}
