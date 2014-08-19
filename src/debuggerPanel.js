@@ -28,7 +28,7 @@ define(function (require, exports) {
 		if(e.keyCode == 13) {
 			//Remove all may existing suggestions
 			debuggerPanel.$debuggerInput.find('.suggestion').remove();
-			var com = debuggerPanel.$debuggerInput.text();
+			var com = debuggerPanel.$debuggerInput.val();
 
 			if(com.length > 0) {
 				history.push(com);
@@ -36,24 +36,24 @@ define(function (require, exports) {
 				debuggerPanel.log( $('<span>').text('>> ' + com) );
 				_nodeDebuggerDomain.exec('eval', com);
 				//reset the input field
-				debuggerPanel.$debuggerInput.html('');
+				debuggerPanel.$debuggerInput.val('');
 			}
 		}
 		//On key up/down scroll through history
 		if(e.keyCode == 40) {
 			historyCurrent++;
 			if(history[historyCurrent]) {
-				debuggerPanel.$debuggerInput.html( history[historyCurrent] );
+				debuggerPanel.$debuggerInput.val( history[historyCurrent] );
 			} else {
 				historyCurrent = history.length;
-				debuggerPanel.$debuggerInput.html('');
+				debuggerPanel.$debuggerInput.val('');
 			}
 			//e.preventDefault();
 		}
 		if(e.keyCode == 38) {
 			historyCurrent--;
 			if(history[historyCurrent]) {
-				debuggerPanel.$debuggerInput.html( history[historyCurrent] );
+				debuggerPanel.$debuggerInput.val( history[historyCurrent] );
 			} else {
 				historyCurrent = 0;
 			}
@@ -144,7 +144,7 @@ define(function (require, exports) {
 			.addClass('brackets-node-debugger-log');
 
 		$h.append($msg);
-		$h.insertBefore(debuggerPanel.$debuggerInput);
+		$h.insertBefore($('#brackets-node-debugger-input-wrapper'));
 		debuggerPanel.$debuggerInput.focus();
 		//Scroll to the bottom
 		debuggerPanel.$debuggerContent.scrollTop( 9999999999999 );
