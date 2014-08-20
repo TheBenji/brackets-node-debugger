@@ -112,7 +112,7 @@ define(function (require, exports) {
 		var $clear = $('<a>').addClass('ion-trash-b clear').attr('href', '#').attr('title', 'Clear console');
 
 		debuggerPanel.addControlElement($clear, false, function() {
-			debuggerPanel.$debuggerContent.html(debuggerPanel.$debuggerInput);
+			debuggerPanel.$debuggerContent.html($('#brackets-node-debugger-input-wrapper'));
 			//set the keyHandler again
 			debuggerPanel.$debuggerInput.on('keydown', onKeyDown);
 		});
