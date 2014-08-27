@@ -7,70 +7,74 @@
 }
 
 #brackets-node-debugger-log a.icon {
-    margin: 0 10px;
-    color: #bbb;
-    font-size: 18px;
+	margin: 0 10px;
+	color: #bbb;
+	font-size: 18px;
 }
 
 #brackets-node-debugger-log .toolbar.bottom a {
-    margin-left: 15px;
-    color: #bbb;
+	margin-left: 15px;
+	color: #bbb;
 }
 
 #brackets-node-debugger-log .toolbar.bottom a:hover {
-    color: #78B2F2;
+	color: #78B2F2;
 }
 
 #brackets-node-debugger-log a.removeBP:hover {
-   color: #F74687;
+	color: #F74687;
 }
 
 #brackets-node-debugger-log a.inactive {
-    opacity: 0.4;
+	opacity: 0.4;
 }
 
 #brackets-node-debugger-log a.active {
-    color: #78B2F2;
+	color: #78B2F2;
 }
 
 #brackets-node-debugger-log a.ion-ios7-close {
-   color: #F74687;
+	color: #F74687;
 }
 
 #brackets-node-debugger-log a.ion-ios7-checkmark {
-    color: #91CC41;
+	color: #91CC41;
 }
 
 #brackets-node-debugger-content {
-    overflow-y: scroll;
-    height: 80%;
+	overflow-y: scroll;
 }
 
 #brackets-node-debugger-input {
-    display: block;
+	display: block;
 	min-width: 50%;
 	height: 20px;
-    max-height: 20px;
-    padding-left: 25px;
-    float: left;
+	max-height: 20px;
+	margin-left: 5px;
+	border: 0;
+	background: transparent;
+	float: left;
 }
 
-#brackets-node-debugger-input:before {
-    content: ">>";
-    display: block;
-    margin-left: -25px;
-    height: 20px;
-    float: left;
-    color: #822;
+#brackets-node-debugger-input .suggestion {
+	color: #822;
+}
+
+.input-indicator {
+	content: ">>";
+	display: block;
+	height: 20px;
+	float: left;
+	color: #822;
 }
 
 .node-debugger-highlight {
-     background-color: rgba(130, 2, 0, 0.1);
+	background-color: rgba(130, 2, 0, 0.1);
 }
 
 #brackets-node-debugger-content .type {
-    color: #78B2F2;
-    padding-right: 5px;
+	color: #78B2F2;
+	padding-right: 5px;
 }
 
 #brackets-node-debugger-content .var-name {
@@ -99,10 +103,10 @@
 }
 
 #status-bar #node-debugger-indicator.ion-android-developer {
-    color: #F74687;
-    cursor: pointer;
+	color: #F74687;
+	cursor: pointer;
 }
 
 #status-bar #node-debugger-indicator.ion-android-developer.connected {
-     color: #91CC41;
+	color: #91CC41;
 }

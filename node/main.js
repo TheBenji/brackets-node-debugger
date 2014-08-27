@@ -3,33 +3,42 @@ var debugConnector = require('./lib/debug.js').debugConnector;
 
 var _domainManager,
 	debug,
-	_maxDeep,
+	_maxDepth,
 	_autoConnect;
 
+var stepCallback = function(c, b, running) {
+	if(running) {
+		_domainManager.emitEvent("brackets-node-debugger", "running");
+	}
+};
 
 function stepNext() {
 	debug.sendCommand({
 		"command": "continue",
-		"arguments": {"stepaction": "next "}
+		"callback": stepCallback,
+		"arguments": {"stepaction": "next"}
 	});
 }
 
 function stepIn() {
 	debug.sendCommand({
 		"command": "continue",
-		"arguments": {"stepaction": "in "}
+		"callback": stepCallback,
+		"arguments": {"stepaction": "in"}
 	});
 }
 
 function stepOut() {
 	debug.sendCommand({
 		"command": "continue",
-		"arguments": {"stepaction": "out "}
+		"callback": stepCallback,
+		"arguments": {"stepaction": "out"}
 	});
 }
 
 function stepContinue() {
 	debug.sendCommand({
+		"callback": stepCallback,
 		"command": "continue"
 	});
 }
@@ -95,6 +104,28 @@ function evaluate(com) {
 	debug.sendCommand(obj);
 }
 
+//Get all the arguments and locals for the current frame
+//TODO Get the scopes and then the locals from the scope to get more information
+function getFrame() {
+	debug.sendCommand({
+		"command": "frame",
+		"callback": function(c, body) {
+			if(body.arguments && body.arguments.length > 0) {
+				var handles = [];
+				body.arguments.forEach(function(b) {
+					handles.push(b.value.ref);
+				});
+
+				_recursiveLookup(handles, 0, {}, function(cmd, b) {
+					//Add the lookup stuff and emit the event
+					body.lookup = b;
+					_domainManager.emitEvent("brackets-node-debugger", "frame", body);
+				});
+			}
+		}
+	});
+}
+
 function _recursiveLookup(handles, depth, objects, callback) {
 	debug.sendCommand({
 		"command": "lookup",
@@ -119,7 +150,7 @@ function _recursiveLookup(handles, depth, objects, callback) {
 			});
 
 			depth++;
-			if(depth < _maxDeep) {
+			if(depth < _maxDepth) {
 				_recursiveLookup(newHandles, depth, objects, callback);
 			} else {
 				callback(c, objects);
@@ -148,7 +179,7 @@ function getBreakpoints() {
 function start(port, host, autoConnect, maxDepth) {
 	_autoConnect = autoConnect;
 
-	_maxDeep = maxDepth;
+	_maxDepth = maxDepth;
 
 	if(!debug) {
 		debug = new debugConnector();
@@ -164,7 +195,14 @@ function start(port, host, autoConnect, maxDepth) {
 function setEventHandlers() {
 
 	debug.on('connect', function() {
-		_domainManager.emitEvent("brackets-node-debugger", "connect");
+		//Get information
+		debug.sendCommand({
+			"command": "version",
+			"callback": function(c, body, running) {
+				body.running = running;
+				_domainManager.emitEvent("brackets-node-debugger", "connect", body);
+			}
+		});
 	});
 
 	debug.on('error', function(err) {
@@ -230,7 +268,7 @@ function setEventHandlers() {
 		}
 		]
 	);
-	
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"stepNext",
@@ -238,7 +276,7 @@ function setEventHandlers() {
 		false,
 		"Continue with action 'next'"
 	);
-	
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"disconnect",
@@ -270,8 +308,8 @@ function setEventHandlers() {
 		false,
 		"Continue running the script"
 	);
-	
-	
+
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"eval",
@@ -284,7 +322,14 @@ function setEventHandlers() {
 			description: "The expression to evaluate"
 		}]
 	);
-	
+
+	_domainManager.registerCommand(
+		"brackets-node-debugger",
+		"getFrame",
+		getFrame,
+		false,
+		"Get the current frame with all arguments/locals"
+	);
 
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
@@ -327,7 +372,17 @@ function setEventHandlers() {
 
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
-		"connect"
+		"connect",
+		[{
+			name: "body",
+			type: "Object",
+			description: "Response from the V8 debugger"
+		}]
+	);
+
+	_domainManager.registerEvent(
+		"brackets-node-debugger",
+		"running"
 	);
 	
 	_domainManager.registerEvent(
@@ -383,6 +438,16 @@ function setEventHandlers() {
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"allBreakpoints",
+		[{
+			name: "args",
+			type: "object",
+			description: "The Arguments V8 sends us as response"
+		}]
+	);
+
+	_domainManager.registerEvent(
+		"brackets-node-debugger",
+		"frame",
 		[{
 			name: "args",
 			type: "object",

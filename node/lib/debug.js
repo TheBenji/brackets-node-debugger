@@ -75,7 +75,7 @@ debugConnector.prototype.connect = function() {
 				if(body.type === 'response') {
 
 					if(self._waitingForResponse[body.request_seq].callback) {
-						self._waitingForResponse[body.request_seq].callback(body.command, body.body);
+						self._waitingForResponse[body.request_seq].callback(body.command, body.body, body.running);
 					}
 
 					delete self._waitingForResponse[body.request_seq];
