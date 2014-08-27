@@ -180,7 +180,8 @@ define(function (require, exports) {
 		var $inside = $('<span>');
 		depth++;
 
-		if(body.type === 'object' && body.properties) {
+		//Exception for Date Object
+		if(body.type === 'object' && body.properties && (body.className !== 'Date') ) {
 			var o = {};
 			body.properties.forEach(function(p) {
 				if(lookup[p.ref]) {
