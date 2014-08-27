@@ -100,7 +100,7 @@ define(function (require, exports) {
 									.removeClass('ion-ios7-close');
 			$('#node-debugger-indicator').addClass('connected');
 
-			console.log(body);
+			//console.log(body);
 
 			if(body.running) {
 				nodeDebuggerPanel.$logPanel.find('a.active').addClass('inactive').removeClass('active');

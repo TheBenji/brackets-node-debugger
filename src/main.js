@@ -42,8 +42,9 @@ define(function (require, exports, module) {
 				locals = require('./locals/locals').locals;
 
 			debug.init(nodeDebuggerDomain);
-			breakpoints.init(nodeDebuggerDomain),
-			locals.init(nodeDebuggerDomain);
+			breakpoints.init(nodeDebuggerDomain);
+			//Not ready yet
+			//locals.init(nodeDebuggerDomain);
 
 			//Auto Connector active
 			if(prefs.get("autoConnect")) {
