@@ -100,7 +100,7 @@ function evaluate(com) {
 			_domainManager.emitEvent("brackets-node-debugger", "eval", body);
 		}
 	};
-	
+
 	debug.sendCommand(obj);
 }
 
@@ -150,7 +150,7 @@ function _recursiveLookup(handles, depth, objects, callback) {
 			});
 
 			depth++;
-			if(depth < _maxDepth) {
+			if(depth <= _maxDepth) {
 				_recursiveLookup(newHandles, depth, objects, callback);
 			} else {
 				callback(c, objects);
@@ -219,7 +219,7 @@ function setEventHandlers() {
 		if(_autoConnect) {
 			//Try in a second again
 			setTimeout(function() {
-				start(debug.port, debug.host, _autoConnect);
+				start(debug.port, debug.host, _autoConnect, _maxDepth);
 			}, 2000);
 		}
 
@@ -239,7 +239,7 @@ function setEventHandlers() {
 	if (!domainManager.hasDomain("brackets-node-debugger")) {
 		domainManager.registerDomain("brackets-node-debugger", {major: 0, minor: 1});
 	}
-	
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"start",
@@ -292,7 +292,7 @@ function setEventHandlers() {
 		false,
 		"Continue with action 'In'"
 	);
-	
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"stepOut",
@@ -300,7 +300,7 @@ function setEventHandlers() {
 		false,
 		"Continue with action 'out'"
 	);
-	
+
 	_domainManager.registerCommand(
 		"brackets-node-debugger",
 		"continue",
@@ -384,7 +384,7 @@ function setEventHandlers() {
 		"brackets-node-debugger",
 		"running"
 	);
-	
+
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"close",
@@ -394,7 +394,7 @@ function setEventHandlers() {
 			description: "Reason for close"
 		}]
 	);
-	
+
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"break",
@@ -404,7 +404,7 @@ function setEventHandlers() {
 			description: "The body V8 sends us"
 		}]
 	);
-	
+
 	_domainManager.registerEvent(
 		"brackets-node-debugger",
 		"eval",

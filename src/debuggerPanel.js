@@ -132,7 +132,7 @@ define(function (require, exports) {
 		debuggerPanel.panel.setVisible(!debuggerPanel.panel.isVisible());
 		//try to connect on toggle?
 		if(prefs.get("autoConnectOnToggle") && debuggerPanel.panel.isVisible()) {
-			_nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false);
+			_nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false,  prefs.get("lookupDepth"));
 		}
 	};
 
