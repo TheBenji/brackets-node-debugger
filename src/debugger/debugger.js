@@ -156,7 +156,9 @@ define(function (require, exports) {
 				nextClickHandler();
 			}
 
-			if(e.keyCode === 122) {
+			if(e.keyCode === 122 && e.shiftKey) {
+				outClickHandler();
+			} else if(e.keyCode === 122) {
 				inClickHandler();
 			}
 		});
