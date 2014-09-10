@@ -4,6 +4,7 @@
 
 #brackets-node-debugger-log .toolbar.bottom{
 	padding: 0;
+	clear: both;
 }
 
 #brackets-node-debugger-log a.icon {
@@ -39,10 +40,6 @@
 
 #brackets-node-debugger-log a.ion-ios7-checkmark {
 	color: #91CC41;
-}
-
-#brackets-node-debugger-content {
-	overflow-y: scroll;
 }
 
 #brackets-node-debugger-input {
@@ -83,6 +80,16 @@
 
 #brackets-node-debugger-content .hidden {
 	display: none;
+}
+
+#brackets-node-debugger-wrapper .brackets-node-debugger-content {
+	float: left;
+	width: 75%;
+	overflow-y: scroll;
+}
+
+#brackets-node-debugger-wrapper #brackets-node-debugger-sidebar {
+	width: 24%;
 }
 
 .brackets-node-debugger-log span.object {
