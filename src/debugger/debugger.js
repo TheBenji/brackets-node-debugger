@@ -42,10 +42,10 @@ define(function (require, exports) {
 
 		//Add all the standard control elements
 		var $activate = $('<a>').addClass('icon ion-ios7-close activate inactive').attr('href', '#').attr('title', 'Click to connect');
-		var $next = $('<a>').addClass('icon ion-forward next inactive').attr('href', '#').attr('title', 'Step over to next function');
-		var $in = $('<a>').addClass('icon ion-arrow-return-right in inactive').attr('href', '#').attr('title', 'Step in');
-		var $out = $('<a>').addClass('icon ion-arrow-return-left out inactive').attr('href', '#').attr('title', 'Step out');
-		var $continue = $('<a>').addClass('icon ion-arrow-right-b continue inactive').attr('href', '#').attr('title', 'Continue');
+		var $next = $('<a>').addClass('icon ion-forward next inactive').attr('href', '#').attr('title', 'Step over to next function (F10)');
+		var $in = $('<a>').addClass('icon ion-arrow-return-right in inactive').attr('href', '#').attr('title', 'Step in (F11)');
+		var $out = $('<a>').addClass('icon ion-arrow-return-left out inactive').attr('href', '#').attr('title', 'Step out (Shift-F11)');
+		var $continue = $('<a>').addClass('icon ion-arrow-right-b continue inactive').attr('href', '#').attr('title', 'Continue (F8)');
 
 		nodeDebuggerPanel.addControlElement($continue, true, continueClickHandler);
 		nodeDebuggerPanel.addControlElement($out, true, outClickHandler);
@@ -156,7 +156,9 @@ define(function (require, exports) {
 				nextClickHandler();
 			}
 
-			if(e.keyCode === 122) {
+			if(e.keyCode === 122 && e.shiftKey) {
+				outClickHandler();
+			} else if(e.keyCode === 122) {
 				inClickHandler();
 			}
 		});
