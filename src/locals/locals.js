@@ -5,8 +5,9 @@ define(function (require, exports) {
 	var nodeDebuggerPanel = require('./../debuggerPanel').debuggerPanel;
 
 	var locals = {},
+		lookup,
 		$locals = $(null),
-		_allLocals = ['this'],
+		_allLocals = [],
 		_nodeDebuggerDomain;
 
 	var displayLocals = function() {
@@ -14,7 +15,15 @@ define(function (require, exports) {
 		$locals.find('.locals-wrapper').remove();
 		var $wrapper = $('<div>').addClass('locals-wrapper');
 		_allLocals.forEach(function(l) {
-			$('<div>').text(l + ': ' + locals[l]).appendTo($wrapper);
+			//$('<div>').text(l + ': ' + locals[l]).appendTo($wrapper);
+			//Check if we actually got all Information
+			if(locals[l]) {
+				var $a = $('<div>').addClass('brackets-node-debugger-log');
+				//Add the varName again
+				locals[l].varName = l;
+				nodeDebuggerPanel.createEvalHTML(locals[l], 3, lookup).appendTo($a);
+				$a.appendTo($wrapper);
+			}
 		});
 
 		//append
@@ -28,19 +37,25 @@ define(function (require, exports) {
 
 		$(_nodeDebuggerDomain).on('frame', function(e, body) {
 			console.log(body);
+
+			//reset stuff
+			locals = {};
+			_allLocals = [];
+
+			lookup = body.lookup;
 			//Get all arguments
 			if(body.arguments && body.arguments.length > 0) {
 				body.arguments.forEach(function(a) {
 					_allLocals.push(a.name);
 					//and get the value
-					locals[a.name] = body.lookup[a.value.ref].text ? body.lookup[a.value.ref].text : 'undefined';
+					locals[a.name] = lookup[a.value.ref];
 				});
 			}
 			//Get all locals
 			if(body.locals && body.locals.length > 0) {
 				body.locals.forEach(function(l) {
 					_allLocals.push(l.name);
-					locals[l.name] = body.lookup[l.value.ref] ? body.lookup[l.value.ref].text : 'undefined';
+					locals[l.name] = lookup[l.value.ref];
 				});
 			}
 

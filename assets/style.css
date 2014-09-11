@@ -69,16 +69,16 @@
 	background-color: rgba(130, 2, 0, 0.1);
 }
 
-#brackets-node-debugger-content .type {
+#brackets-node-debugger-wrapper .type {
 	color: #78B2F2;
 	padding-right: 5px;
 }
 
-#brackets-node-debugger-content .var-name {
+#brackets-node-debugger-wrapper .var-name {
 	color: #822;
 }
 
-#brackets-node-debugger-content .hidden {
+#brackets-node-debugger-wrapper .hidden {
 	display: none;
 }
 

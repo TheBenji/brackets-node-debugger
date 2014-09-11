@@ -110,18 +110,25 @@ function getFrame() {
 	debug.sendCommand({
 		"command": "frame",
 		"callback": function(c, body) {
+			var handles = [];
+
 			if(body.arguments && body.arguments.length > 0) {
-				var handles = [];
 				body.arguments.forEach(function(b) {
 					handles.push(b.value.ref);
 				});
+			}
 
-				_recursiveLookup(handles, 0, {}, function(cmd, b) {
-					//Add the lookup stuff and emit the event
-					body.lookup = b;
-					_domainManager.emitEvent("brackets-node-debugger", "frame", body);
+			if(body.locals && body.locals.length > 0) {
+				body.locals.forEach(function(b) {
+					handles.push(b.value.ref);
 				});
 			}
+
+			_recursiveLookup(handles, 0, {}, function(cmd, b) {
+				//Add the lookup stuff and emit the event
+				body.lookup = b;
+				_domainManager.emitEvent("brackets-node-debugger", "frame", body);
+			});
 		}
 	});
 }
