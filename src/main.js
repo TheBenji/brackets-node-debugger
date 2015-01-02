@@ -44,7 +44,7 @@ define(function (require, exports, module) {
 			debug.init(nodeDebuggerDomain);
 			breakpoints.init(nodeDebuggerDomain);
 			//Not ready yet
-			locals.init(nodeDebuggerDomain);
+			//locals.init(nodeDebuggerDomain);
 
 			//Auto Connector active
 			if(prefs.get("autoConnect")) {
