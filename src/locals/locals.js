@@ -5,8 +5,30 @@ define(function (require, exports) {
 	var nodeDebuggerPanel = require('./../debuggerPanel').debuggerPanel;
 
 	var locals = {},
-		_allLocals = ['this'],
+		lookup,
+		$locals = $(null),
+		_allLocals = [],
 		_nodeDebuggerDomain;
+
+	var displayLocals = function() {
+
+		$locals.find('.locals-wrapper').remove();
+		var $wrapper = $('<div>').addClass('locals-wrapper');
+		_allLocals.forEach(function(l) {
+			//$('<div>').text(l + ': ' + locals[l]).appendTo($wrapper);
+			//Check if we actually got all Information
+			if(locals[l]) {
+				var $a = $('<div>').addClass('brackets-node-debugger-log');
+				//Add the varName again
+				locals[l].varName = l;
+				nodeDebuggerPanel.createEvalHTML(locals[l], 3, lookup).appendTo($a);
+				$a.appendTo($wrapper);
+			}
+		});
+
+		//append
+		$wrapper.appendTo($locals);
+	};
 
 	/**
 	* Register all the nodeDebuggerDomain evens
@@ -15,18 +37,30 @@ define(function (require, exports) {
 
 		$(_nodeDebuggerDomain).on('frame', function(e, body) {
 			console.log(body);
+
+			//reset stuff
+			locals = {};
+			_allLocals = [];
+
+			lookup = body.lookup;
 			//Get all arguments
 			if(body.arguments && body.arguments.length > 0) {
 				body.arguments.forEach(function(a) {
 					_allLocals.push(a.name);
+					//and get the value
+					locals[a.name] = lookup[a.value.ref];
 				});
 			}
 			//Get all locals
 			if(body.locals && body.locals.length > 0) {
 				body.locals.forEach(function(l) {
 					_allLocals.push(l.name);
+					locals[l.name] = lookup[l.value.ref];
 				});
 			}
+
+			//And display the stuff in the panel
+			displayLocals();
 		});
 
 		//Get the frame on break
@@ -69,6 +103,10 @@ define(function (require, exports) {
 		_nodeDebuggerDomain = nodeDebuggerDomain;
 
 		registerEventListener();
+
+		//Add a tab into the sidebox
+		$locals = $('<div>').addClass('locals');
+		$locals.prependTo($('#brackets-node-debugger-sidebar'));
 	};
 
 	exports.locals = locals;

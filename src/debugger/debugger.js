@@ -4,6 +4,8 @@ define(function (require, exports) {
 
 	var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
 		DocumentManager = brackets.getModule("document/DocumentManager"),
+		CommandManager = brackets.getModule("command/CommandManager"),
+		Commands = brackets.getModule("command/Commands"),
 		Editor = brackets.getModule("editor/EditorManager"),
 		prefs = PreferencesManager.getExtensionPrefs("brackets-node-debugger");
 
@@ -12,6 +14,7 @@ define(function (require, exports) {
 	var debug = {},
 		_nodeDebuggerDomain,
 		_activeLine,
+		_activeDocPath,
 		_highlightCm;
 
 	//All the Click Handler for the Buttons
@@ -35,6 +38,29 @@ define(function (require, exports) {
 		_nodeDebuggerDomain.exec('continue');
 	};
 
+	var openActiveDoc = function() {
+		if(_activeDocPath && _activeLine) {
+			//NOTE: For some reason the execute promisie doesn't resolve to fail but this workaround will do for now
+			try {
+				CommandManager.execute( Commands.CMD_OPEN, {fullPath: _activeDocPath} )
+				.then(function() {
+
+					var ae = Editor.getActiveEditor();
+					//_activeLine = body.sourceLine;
+					//_activeDocPath = docPath;
+					ae.setCursorPos( _activeLine );
+					//Highlight the line
+					_highlightCm = ae._codeMirror;
+					_activeLine = _highlightCm.addLineClass(_activeLine, 'node-debugger-highlight-background', 'node-debugger-highlight');
+				}, function() {
+					console.log('[Node Debugger] Failed to open Document: ' + _activeDocPath);
+				});
+			} catch (e) {
+				console.log('[Node Debugger] Failed to open Document: ' + _activeDocPath);
+			}
+		}
+	};
+
 	debug.init = function(nodeDebuggerDomain) {
 		_nodeDebuggerDomain = nodeDebuggerDomain;
 		//and set the event listener
@@ -42,16 +68,19 @@ define(function (require, exports) {
 
 		//Add all the standard control elements
 		var $activate = $('<a>').addClass('icon ion-ios7-close activate inactive').attr('href', '#').attr('title', 'Click to connect');
-		var $next = $('<a>').addClass('icon ion-forward next inactive').attr('href', '#').attr('title', 'Step over to next function');
-		var $in = $('<a>').addClass('icon ion-arrow-return-right in inactive').attr('href', '#').attr('title', 'Step in');
-		var $out = $('<a>').addClass('icon ion-arrow-return-left out inactive').attr('href', '#').attr('title', 'Step out');
-		var $continue = $('<a>').addClass('icon ion-arrow-right-b continue inactive').attr('href', '#').attr('title', 'Continue');
+		var $next = $('<a>').addClass('icon ion-forward next inactive').attr('href', '#').attr('title', 'Step over to next function (F10)');
+		var $in = $('<a>').addClass('icon ion-arrow-return-right in inactive').attr('href', '#').attr('title', 'Step in (F11)');
+		var $out = $('<a>').addClass('icon ion-arrow-return-left out inactive').attr('href', '#').attr('title', 'Step out (Shift-F11)');
+		var $continue = $('<a>').addClass('icon ion-arrow-right-b continue inactive').attr('href', '#').attr('title', 'Continue (F8)');
+
+		var $jumpToBreak = $('<a>').addClass('icon ion-eye jumpToBreak inactive').attr('href', '#').attr('title', 'Jump to break');
 
 		nodeDebuggerPanel.addControlElement($continue, true, continueClickHandler);
 		nodeDebuggerPanel.addControlElement($out, true, outClickHandler);
 		nodeDebuggerPanel.addControlElement($in, true, inClickHandler);
 		nodeDebuggerPanel.addControlElement($next, true, nextClickHandler);
 		nodeDebuggerPanel.addControlElement($activate, true, activateClickHandler);
+		nodeDebuggerPanel.addControlElement($jumpToBreak, false, openActiveDoc);
 	};
 
 	/**
@@ -65,6 +94,7 @@ define(function (require, exports) {
 				_highlightCm.removeLineClass( _activeLine , 'node-debugger-highlight-background', 'node-debugger-highlight');
 				_highlightCm = null;
 				_activeLine = null;
+				_activeDocPath = null;
 			}
 		});
 
@@ -77,19 +107,16 @@ define(function (require, exports) {
 			nodeDebuggerPanel.panel.setVisible(true);
 			nodeDebuggerPanel.$logPanel.find('a.inactive').addClass('active').removeClass('inactive');
 
-			DocumentManager.getDocumentForPath(docPath)
-				.done(function(doc) {
-					DocumentManager.setCurrentDocument( doc );
-					var ae = Editor.getActiveEditor();
-					_activeLine = body.sourceLine;
-					ae.setCursorPos( _activeLine );
-					//Highlight the line
-					_highlightCm = ae._codeMirror;
-					_activeLine = _highlightCm.addLineClass(_activeLine, 'node-debugger-highlight-background', 'node-debugger-highlight');
+			//Remove old highlight
+			if(_highlightCm) {
+				_highlightCm.removeLineClass( _activeLine , 'node-debugger-highlight-background', 'node-debugger-highlight');
+			}
 
-				}).fail(function() {
-					console.log('[Node Debugger] Failed to open Document: ' + docPath);
-				});
+			//Where is the break?
+			_activeLine = body.sourceLine;
+			_activeDocPath = docPath;
+			//Open the document and jump to line
+			openActiveDoc();
 
 		});
 
@@ -156,7 +183,9 @@ define(function (require, exports) {
 				nextClickHandler();
 			}
 
-			if(e.keyCode === 122) {
+			if(e.keyCode === 122 && e.shiftKey) {
+				outClickHandler();
+			} else if(e.keyCode === 122) {
 				inClickHandler();
 			}
 		});

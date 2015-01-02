@@ -17,6 +17,7 @@ define(function (require, exports) {
 		panel: null,
 		$logPanel: $(null),
 		$debuggerContent: $(null),
+		$debuggerSideBar: $(null),
 		$debuggerInput: $(null)
 	};
 
@@ -91,13 +92,23 @@ define(function (require, exports) {
 		$(PanelManager).on('editorAreaResize', function() {
 			var height = debuggerPanel.$logPanel.height();
 			debuggerPanel.$debuggerContent.height(height - 50);
+			debuggerPanel.$debuggerSideBar.height(height - 50);
 		});
+
+		//TODO: Make the sidebox resizeable
+		/*
+		debuggerPanel.$logPanel.find('.horz-resizer').mousemove(function(e) {
+			console.log('MouseDown');
+			console.log(e);
+		});
+		*/
 
 		_maxDepth = prefs.get("lookupDepth");
 		_nodeDebuggerDomain = nodeDebuggerDomain;
 
 		//Find HTML
 		debuggerPanel.$debuggerContent = debuggerPanel.$logPanel.find('#brackets-node-debugger-content');
+		debuggerPanel.$debuggerSideBar = debuggerPanel.$logPanel.find('#brackets-node-debugger-sidebar');
 		debuggerPanel.$debuggerInput = debuggerPanel.$logPanel.find('#brackets-node-debugger-input');
 
 		//Add keydown handler to input
@@ -132,7 +143,7 @@ define(function (require, exports) {
 		debuggerPanel.panel.setVisible(!debuggerPanel.panel.isVisible());
 		//try to connect on toggle?
 		if(prefs.get("autoConnectOnToggle") && debuggerPanel.panel.isVisible()) {
-			_nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false);
+			_nodeDebuggerDomain.exec("start", prefs.get("debugger-port"), prefs.get("debugger-host"), false,  prefs.get("lookupDepth"));
 		}
 	};
 

@@ -4,6 +4,14 @@
 [Click here](https://github.com/TheBenji/brackets-node-debugger#how-to-use-it) for more Information
 If you find a bug please open an issue on github!
 
+## 0.1.7
+
+* ADD: Button to jump to the current break
+* FIX: Show breakpoints on the _actual_ line
+* FIX: Detect and show connection status properly
+* FIX: deeper object inspection when using auto connect
+* ...and some more small fixes and updates
+
 ## 0.1.6
 
 * ADD: Control Debugger with keyboard (similar to the dev tools in your browser)

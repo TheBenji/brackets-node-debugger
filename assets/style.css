@@ -4,6 +4,7 @@
 
 #brackets-node-debugger-log .toolbar.bottom{
 	padding: 0;
+	clear: both;
 }
 
 #brackets-node-debugger-log a.icon {
@@ -41,10 +42,6 @@
 	color: #91CC41;
 }
 
-#brackets-node-debugger-content {
-	overflow-y: scroll;
-}
-
 #brackets-node-debugger-input {
 	display: block;
 	min-width: 50%;
@@ -72,17 +69,27 @@
 	background-color: rgba(130, 2, 0, 0.1);
 }
 
-#brackets-node-debugger-content .type {
+#brackets-node-debugger-wrapper .type {
 	color: #78B2F2;
 	padding-right: 5px;
 }
 
-#brackets-node-debugger-content .var-name {
+#brackets-node-debugger-wrapper .var-name {
 	color: #822;
 }
 
-#brackets-node-debugger-content .hidden {
+#brackets-node-debugger-wrapper .hidden {
 	display: none;
+}
+
+#brackets-node-debugger-wrapper .brackets-node-debugger-content {
+	float: left;
+	width: 75%;
+	overflow-y: scroll;
+}
+
+#brackets-node-debugger-wrapper #brackets-node-debugger-sidebar {
+	width: 24%;
 }
 
 .brackets-node-debugger-log span.object {
