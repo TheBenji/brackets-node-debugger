@@ -107,6 +107,11 @@ define(function (require, exports) {
 			nodeDebuggerPanel.panel.setVisible(true);
 			nodeDebuggerPanel.$logPanel.find('a.inactive').addClass('active').removeClass('inactive');
 
+			//Remove old highlight
+			if(_highlightCm) {
+				_highlightCm.removeLineClass( _activeLine , 'node-debugger-highlight-background', 'node-debugger-highlight');
+			}
+
 			//Where is the break?
 			_activeLine = body.sourceLine;
 			_activeDocPath = docPath;
