@@ -98,13 +98,15 @@ define(function (require, exports) {
 		var info = cm.lineInfo(n);
 
 		if(info.gutterMarkers && info.gutterMarkers[gutterName]) {
-			var bp = _.find(breakpoints, function(obj) {
-				return obj.line === n && cd === obj.fullPath;
+			var bps = _.filter(breakpoints, function(obj) {
+				return obj.actual_line === n && cd === obj.fullPath;
 			});
-			_nodeDebuggerDomain.exec("removeBreakpoint", bp.breakpoint);
-			cm.setGutterMarker( bp.line, gutterName, null );
-			var i = breakpoints.indexOf(bp);
-			breakpoints.splice(i, 1);
+			bps.forEach(function(bp) {
+				_nodeDebuggerDomain.exec("removeBreakpoint", bp.breakpoint);
+				cm.setGutterMarker( bp.actual_line, gutterName, null );
+				var i = breakpoints.indexOf(bp);
+				breakpoints.splice(i, 1);
+			});
 		} else {
 			//TODO Show warning if not connected
 			_nodeDebuggerDomain.exec("setBreakpoint", cd, n);
@@ -127,19 +129,21 @@ define(function (require, exports) {
 	*
 	*/
 	function addBreakpoint(bp) {
+		bp.actual_line = bp.actual_locations[0].line;
 		//If this one of the reconnect BP don't add it
 		var exist = _.find(breakpoints, function(obj) {
-			return obj.line === bp.line && obj.fullPath === bp.fullPath;
+			return obj.breakpoint === bp.breakpoint;
 		});
 		if(!exist) {
 			bp.cm = cm;
+
 			breakpoints.push(bp);
 
 			var $marker = $("<div>")
 					.addClass('breakpoint-gutter')
 					.html("●");
 
-			bp.cm.setGutterMarker( bp.line, gutterName, $marker[0] );
+			bp.cm.setGutterMarker( bp.actual_line, gutterName, $marker[0] );
 		}
 	}
 
@@ -154,7 +158,7 @@ define(function (require, exports) {
 		});
 		//Delete all
 		breakpoints = [];
-		
+
 		//Update gutters again
 		_updateGutters();
 	}
