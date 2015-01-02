@@ -13,7 +13,8 @@ var debugConnector = function() {
 	this._waitingForResponse = {};
 	this._body = '';
 	this._header = true;
-	this._contentLength = 0;
+	this._contentLength = -1;
+	this._ignoreNext = 0;
 
 	this._debug = false;
 };
@@ -27,11 +28,27 @@ debugConnector.prototype.connect = function() {
 
 	this.socket.on('connect', function() {
 		self.connected = true;
+
+		//reset everything
+		self._body = '';
+		self._ignoreNext = 0;
+		self._contentLength = -1;
+		self.header = true;
+		self._waitingForResponse = {};
+
 		self.emit('connect');
+
+		if(self._debug) {
+			console.log('[Node Debugger] Connected to V8 debugger');
+		}
 	});
 
 	this.socket.on('error', function(err) {
 		self.emit('error', err);
+		if(self._debug) {
+			console.error('[Node Debugger] Error on socket: ');
+			console.error(err);
+		}
 	});
 
 	this.socket.on('close', function(err) {
@@ -41,65 +58,100 @@ debugConnector.prototype.connect = function() {
 
 	this.socket.on('data', function(data) {
 		var l = data.toString().split('\r\n');
+		//console.log('----all data---');
 		//console.log( data.toString() );
+		//console.log('----end----')
+
+		var parseHeader = function(line) {
+			var h = line.split(':');
+			//Check if that is really the content-length
+			if( h[0] === 'Content-Length') {
+				self._contentLength = parseInt(h[1], 10);
+
+				//If there is no body we need to ignore the next empty line
+				if(self._contentLength === 0) {
+					self._ignoreNext = 2;
+				}
+
+				if(self._debug) {
+					console.log('[Node Debugger] Found Header: ');
+					console.log(line);
+				}
+			}
+		};
 
 		l.forEach(function( line ) {
+			//console.log('---current line---');
+			//console.log(line);
+			//console.log('---line end---');
 
 			//after the header there is just an empty line
 			if (!line) {
-				self._header = false;
-				return;
+				if(self._ignoreNext > 0) {
+					self._ignoreNext--;
+				} else {
+					self._header = false;
+					self._body = '';
+				}
+				//return;
 			}
 
 			//If we are still in the header check the content length
 			if( self._header ) {
-				var h = line.split(':');
-				//Check if that is really the content-length
-				if( h[0] === 'Content-Length') {
-					self._contentLength = parseInt(h[1], 10);
-				}
+				parseHeader(line);
 			} else {
 				//If we're in the body save the content
+				var oldBody = self._body;
 				self._body += line;
-			}
-		});
 
-		var responseIgnored = true;
-
-		//FIXME: Do that properly...
-		if(self._body.length >= self._contentLength) {
-			try {
-				var body = JSON.parse( self._body );
-				//console.log(body);
-
-				if(body.event === 'break') {
-					self.emit('break', body.body);
-					responseIgnored = false;
+				//Apperantly the header doesn't neccessariily starts in a new line
+				//so we need to parse it a little hackey...or rewrite the parser completely at some point
+				if(self._body.length > self._contentLength) {
+					self._body = oldBody;
+					var splitLine = line.split("Content-Length:");
+					self.body += splitLine[0];
+					parseHeader('Content-Length:'+splitLine[1]);
 				}
+			}
 
-				if(body.type === 'response') {
+			console.log('BodyLength: %d | ContentLength: %d', self._body.length, self._contentLength);
+			if(self._body.length === self._contentLength && self._contentLength > -1) {
+				var responseIgnored = true;
 
-					if(self._waitingForResponse[body.request_seq].callback) {
+				try {
+					var body = JSON.parse( self._body );
+					//console.log(body);
+
+					if(body.event === 'break') {
+						self.emit('break', body.body);
 						responseIgnored = false;
-						self._waitingForResponse[body.request_seq].callback(body.command, body.body, body.running);
 					}
 
-					delete self._waitingForResponse[body.request_seq];
-				}
-			} catch(e) {
-				//Just ignore it for now
-				//TODO Print node/debugger version on connect
-				//console.log('Unvalid response: ' + data.toString() );
-			}
+					if(body.type === 'response') {
 
-			//reset header && body
-			self._header = true;
-			self._body = '';
-		}
-		if(responseIgnored && self._debug) {
-			console.log('[Node Debugger] V8 Response ignored: ');
-			console.log(data.toString());
-		}
+						if(self._waitingForResponse[body.request_seq].callback) {
+							responseIgnored = false;
+							self._waitingForResponse[body.request_seq].callback(body.command, body.body, body.running);
+						}
+
+						delete self._waitingForResponse[body.request_seq];
+					}
+				} catch(e) {
+					//Just ignore it for now
+					//TODO Print node/debugger version on connect
+					//console.log('Unvalid response: ' + data.toString() );
+				}
+
+				if(responseIgnored && self._debug) {
+					console.error('[Node Debugger] V8 Response ignored: ');
+					console.error(self._body);
+				}
+				//reset header && body
+				self._header = true;
+				self._body = '';
+				self._contentLength = -1;
+			}
+		});
 	});
 };
 
