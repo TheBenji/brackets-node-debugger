@@ -4,6 +4,8 @@ define(function (require, exports) {
 
 	var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
 		DocumentManager = brackets.getModule("document/DocumentManager"),
+		CommandManager = brackets.getModule("command/CommandManager"),
+		Commands = brackets.getModule("command/Commands"),
 		Editor = brackets.getModule("editor/EditorManager"),
 		prefs = PreferencesManager.getExtensionPrefs("brackets-node-debugger");
 
@@ -38,19 +40,24 @@ define(function (require, exports) {
 
 	var openActiveDoc = function() {
 		if(_activeDocPath && _activeLine) {
-			DocumentManager.getDocumentForPath(_activeDocPath)
-			.done(function(doc) {
-				DocumentManager.setCurrentDocument( doc );
-				var ae = Editor.getActiveEditor();
-				//_activeLine = body.sourceLine;
-				//_activeDocPath = docPath;
-				ae.setCursorPos( _activeLine );
-				//Highlight the line
-				_highlightCm = ae._codeMirror;
-				_activeLine = _highlightCm.addLineClass(_activeLine, 'node-debugger-highlight-background', 'node-debugger-highlight');
-			}).fail(function() {
-				console.log('[Node Debugger] Failed to open Document: ' + docPath);
-			});
+			//NOTE: For some reason the execute promisie doesn't resolve to fail but this workaround will do for now
+			try {
+				CommandManager.execute( Commands.CMD_OPEN, {fullPath: _activeDocPath} )
+				.then(function() {
+
+					var ae = Editor.getActiveEditor();
+					//_activeLine = body.sourceLine;
+					//_activeDocPath = docPath;
+					ae.setCursorPos( _activeLine );
+					//Highlight the line
+					_highlightCm = ae._codeMirror;
+					_activeLine = _highlightCm.addLineClass(_activeLine, 'node-debugger-highlight-background', 'node-debugger-highlight');
+				}, function() {
+					console.log('[Node Debugger] Failed to open Document: ' + _activeDocPath);
+				});
+			} catch (e) {
+				console.log('[Node Debugger] Failed to open Document: ' + _activeDocPath);
+			}
 		}
 	};
 
