@@ -114,7 +114,9 @@ debugConnector.prototype.connect = function() {
 				}
 			}
 
-			console.log('BodyLength: %d | ContentLength: %d', self._body.length, self._contentLength);
+			if(self._debug) {
+				console.log('BodyLength: %d | ContentLength: %d', self._body.length, self._contentLength);
+			}
 			if(self._body.length === self._contentLength && self._contentLength > -1) {
 				var responseIgnored = true;
 
