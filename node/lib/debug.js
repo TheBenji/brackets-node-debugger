@@ -15,6 +15,7 @@ var debugConnector = function() {
 	this._header = true;
 	this._contentLength = -1;
 	this._ignoreNext = 0;
+	this._parseHeaderNext = false;
 
 	this._debug = false;
 };
@@ -63,10 +64,15 @@ debugConnector.prototype.connect = function() {
 		//console.log('----end----')
 
 		var parseHeader = function(line) {
+			self._parseHeaderNext = false;
 			var h = line.split(':');
 			//Check if that is really the content-length
 			if( h[0] === 'Content-Length') {
 				self._contentLength = parseInt(h[1], 10);
+
+				if(self._debug) {
+					console.log('Content-Length is: ' + h[1]);
+				}
 
 				//If there is no body we need to ignore the next empty line
 				if(self._contentLength === 0) {
@@ -110,7 +116,11 @@ debugConnector.prototype.connect = function() {
 					self._body = oldBody;
 					var splitLine = line.split("Content-Length:");
 					self.body += splitLine[0];
-					parseHeader('Content-Length:'+splitLine[1]);
+					if(splitLine[1]) {
+						self._parseHeaderNext = 'Content-Length:'+splitLine[1];
+					} else {
+						//This is for the case we've got just a partial header
+					}
 				}
 			}
 
@@ -152,6 +162,10 @@ debugConnector.prototype.connect = function() {
 				self._header = true;
 				self._body = '';
 				self._contentLength = -1;
+			}
+
+			if(self._parseHeaderNext) {
+				parseHeader(self._parseHeaderNext);
 			}
 		});
 	});
