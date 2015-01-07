@@ -1,10 +1,14 @@
 /*global require*/
+
+var fs = require('fs');
 var debugConnector = require('./lib/debug.js').debugConnector;
 
 var _domainManager,
 	debug,
 	_maxDepth,
-	_autoConnect;
+	_autoConnect,
+	_linkCache = {},
+	_linkCacheMirror = {};
 
 var stepCallback = function(c, b, running) {
 	if(running) {
@@ -46,24 +50,37 @@ function stepContinue() {
 function setBreakpoint(file, line) {
 	var obj = {};
 	var fullPath = file;
-	//Windows work around
-	if(file.search(':') !== -1) {
-		file = file.split('/').join('\\');
-	}
 
-	obj.command = 'setbreakpoint';
-	obj.arguments = {
-		'type' : 'script',
-		'target' : file,
-		'line': line
-	};
+	//To resolve potential symlinks we check it here
+	fs.realpath(fullPath, _linkCache, function(err, resolvedPath) {
+		if(err) {
+			console.error(err);
+		}
 
-	obj.callback = function(c, body) {
-		body.fullPath = fullPath;
-	  _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", body);
-	};
+		_linkCacheMirror[resolvedPath] = file;
+		file = resolvedPath;
 
-	debug.sendCommand(obj);
+		//Windows work around
+		if(file.search(':') !== -1) {
+			file = file.split('/').join('\\');
+		}
+
+		obj.command = 'setbreakpoint';
+		obj.arguments = {
+			'type' : 'script',
+			'target' : file,
+			'line': line
+		};
+
+		obj.callback = function(c, body) {
+			//Set it back to the path the editor expects
+			body.fullPath = fullPath;
+		  _domainManager.emitEvent("brackets-node-debugger", "setBreakpoint", body);
+		};
+
+		debug.sendCommand(obj);
+	});
+
 }
 
 function removeBreakpoint(breakpoint) {
@@ -236,6 +253,11 @@ function setEventHandlers() {
 	});
 
 	debug.on('break', function(body) {
+		//If we set the breakpoint in a file that is symlinked we need to translate that back
+		if(_linkCacheMirror[body.script.name]) {
+			body.script.name = _linkCacheMirror[body.script.name];
+		}
+
 		_domainManager.emitEvent("brackets-node-debugger", "break", body);
 	});
 	}
