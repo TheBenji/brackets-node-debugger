@@ -62,7 +62,7 @@ define(function (require, exports, module) {
 	CommandManager.register("Node.js Debugger", MY_COMMAND_ID, nodeDebuggerPanel.toggle);
 
 
-	var menu = Menus.getMenu('debug-menu');
+	var menu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
 	menu.addMenuItem(MY_COMMAND_ID);
 	KeyBindingManager.addBinding(MY_COMMAND_ID, "Ctrl-Shift-I");
 
