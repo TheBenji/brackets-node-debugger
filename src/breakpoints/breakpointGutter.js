@@ -129,7 +129,7 @@ define(function (require, exports) {
 	*
 	*/
 	function addBreakpoint(bp) {
-		bp.actual_line = bp.actual_locations[0].line;
+		bp.actual_line = bp.actual_locations.length ? bp.actual_locations[0].line : bp.line;
 		//If this one of the reconnect BP don't add it
 		var exist = _.find(breakpoints, function(obj) {
 			return obj.breakpoint === bp.breakpoint;
