@@ -22,7 +22,7 @@ define(function (require, exports) {
 		bpGutter.init(_nodeDebuggerDomain);
 
 		//Add removeAllBreakpoints button
-		var $bp = $('<a>').addClass('ion-ios7-minus-outline removeBP').attr('href', '#').attr('title', 'Remove all Breakpoints');
+		var $bp = $('<a>').addClass('ion-minus-circled removeBP').attr('href', '#').attr('title', 'Remove all Breakpoints');
 		nodeDebuggerPanel.addControlElement($bp, false, function(){
 			bpGutter.removeAllBreakpoints();
 		});

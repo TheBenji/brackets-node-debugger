@@ -67,20 +67,19 @@ define(function (require, exports) {
 		debuggerDomainEvents();
 
 		//Add all the standard control elements
-		var $activate = $('<a>').addClass('icon ion-ios7-close activate inactive').attr('href', '#').attr('title', 'Click to connect');
+		var $activate = $('<a>').addClass('icon ion-power activate inactive').attr('href', '#').attr('title', 'Click to connect');
 		var $next = $('<a>').addClass('icon ion-forward next inactive').attr('href', '#').attr('title', 'Step over to next function (F10)');
-		var $in = $('<a>').addClass('icon ion-arrow-return-right in inactive').attr('href', '#').attr('title', 'Step in (F11)');
-		var $out = $('<a>').addClass('icon ion-arrow-return-left out inactive').attr('href', '#').attr('title', 'Step out (Shift-F11)');
+		var $in = $('<a>').addClass('icon ion-arrow-down-c in inactive').attr('href', '#').attr('title', 'Step in (F11)');
+		var $out = $('<a>').addClass('icon ion-arrow-up-c out inactive').attr('href', '#').attr('title', 'Step out (Shift-F11)');
 		var $continue = $('<a>').addClass('icon ion-arrow-right-b continue inactive').attr('href', '#').attr('title', 'Continue (F8)');
+		var $jumpToBreak = $('<a>').addClass('icon ion-skip-forward jumpToBreak inactive').attr('href', '#').attr('title', 'Jump to break');
 
-		var $jumpToBreak = $('<a>').addClass('icon ion-eye jumpToBreak inactive').attr('href', '#').attr('title', 'Jump to break');
-
-		nodeDebuggerPanel.addControlElement($continue, true, continueClickHandler);
+		nodeDebuggerPanel.addControlElement($jumpToBreak, true, openActiveDoc);
 		nodeDebuggerPanel.addControlElement($out, true, outClickHandler);
 		nodeDebuggerPanel.addControlElement($in, true, inClickHandler);
 		nodeDebuggerPanel.addControlElement($next, true, nextClickHandler);
+		nodeDebuggerPanel.addControlElement($continue, true, continueClickHandler);
 		nodeDebuggerPanel.addControlElement($activate, true, activateClickHandler);
-		nodeDebuggerPanel.addControlElement($jumpToBreak, false, openActiveDoc);
 	};
 
 	/**
@@ -123,8 +122,8 @@ define(function (require, exports) {
 		//If the Debugger connects highlight the UI parts that need to be highlighted
 		$(_nodeDebuggerDomain).on("connect", function(e, body) {
 			nodeDebuggerPanel.log( $('<span>').text('Debugger connected') );
-			nodeDebuggerPanel.$logPanel.find('.activate').addClass('ion-ios7-checkmark')
-									.removeClass('ion-ios7-close');
+			nodeDebuggerPanel.$logPanel.find('.activate').addClass('ion-stop')
+									.removeClass('ion-power');
 			$('#node-debugger-indicator').addClass('connected');
 
 			//console.log(body);
@@ -150,8 +149,8 @@ define(function (require, exports) {
 			nodeDebuggerPanel.log( $('<span>').text(msg) );
 
 			//GUI update
-			nodeDebuggerPanel.$logPanel.find('.activate').addClass('ion-ios7-close')
-									.removeClass('ion-ios7-checkmark');
+			nodeDebuggerPanel.$logPanel.find('.activate').addClass('ion-power')
+									.removeClass('ion-stop');
 			nodeDebuggerPanel.$logPanel.find('a.active').addClass('inactive').removeClass('active');
 			$('#node-debugger-indicator').removeClass('connected');
 

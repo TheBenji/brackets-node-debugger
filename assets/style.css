@@ -34,12 +34,13 @@
 	color: #78B2F2;
 }
 
-#brackets-node-debugger-log a.ion-ios7-close {
-	color: #F74687;
+#brackets-node-debugger-log a.ion-power {
+	color: #91CC41;
+	opacity: 1;
 }
 
-#brackets-node-debugger-log a.ion-ios7-checkmark {
-	color: #91CC41;
+#brackets-node-debugger-log a.ion-stop {
+	color: #F74687;
 }
 
 #brackets-node-debugger-input {
