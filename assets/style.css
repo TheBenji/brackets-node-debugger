@@ -38,26 +38,30 @@
 }
 
 #brackets-node-debugger-input {
-	display: block;
+	display: inline-block;
 	min-width: 50%;
 	height: 20px;
 	max-height: 20px;
-	margin-left: 5px;
+	margin-left: -3px;
+	margin-top: -3px;
 	border: 0;
 	background: transparent;
-	float: left;
 }
 
 #brackets-node-debugger-input .suggestion {
 	color: #822;
 }
 
+#brackets-node-debugger-input:focus{
+	outline: none;
+}
+
 .input-indicator {
-	content: ">>";
-	display: block;
-	height: 20px;
-	float: left;
-	color: #822;
+	display: inline-block;
+	color: #78B2F2;
+	padding-top: 3px;
+	font-size: 12px;
+	margin: 0 5px;
 }
 
 .node-debugger-highlight {
@@ -81,6 +85,9 @@
 	float: left;
 	width: 75%;
 	overflow-y: scroll;
+	padding: 5px;
+	box-sizing: border-box;
+	background: #eee;
 }
 
 #brackets-node-debugger-wrapper #brackets-node-debugger-sidebar {
@@ -102,6 +109,10 @@
 .brackets-node-debugger-log span.object ~ .var{
 	display: block;
 	padding-left: 10px;
+}
+
+.brackets-node-debugger-log .input-indicator {
+	color: #888;
 }
 
 #status-bar #node-debugger-indicator.ion-android-developer {

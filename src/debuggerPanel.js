@@ -34,7 +34,7 @@ define(function (require, exports) {
 			if(com.length > 0) {
 				history.push(com);
 				historyCurrent = history.length;
-				debuggerPanel.log( $('<span>').text('>> ' + com) );
+				debuggerPanel.log( $('<span>').html('<i class="icon ion-chevron-right input-indicator"></i>' + com) );
 				_nodeDebuggerDomain.exec('eval', com);
 				//reset the input field
 				debuggerPanel.$debuggerInput.val('');
