@@ -91,8 +91,8 @@ define(function (require, exports) {
 		//Make sure the content size is always ok
 		$(PanelManager).on('editorAreaResize', function() {
 			var height = debuggerPanel.$logPanel.height();
-			debuggerPanel.$debuggerContent.height(height - 32);
-			debuggerPanel.$debuggerSideBar.height(height - 32);
+			debuggerPanel.$debuggerContent.height(height - 40);
+			debuggerPanel.$debuggerSideBar.height(height - 40);
 		});
 
 		//TODO: Make the sidebox resizeable

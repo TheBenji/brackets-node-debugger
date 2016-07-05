@@ -2,10 +2,6 @@
 	color: #822;
 }
 
-#brackets-node-debugger-log {
-	overflow: hidden;
-}
-
 #brackets-node-debugger-log a.icon {
 	margin: 0 10px;
 	font-size: 18px;
