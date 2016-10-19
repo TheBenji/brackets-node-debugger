@@ -2,24 +2,22 @@
 	color: #822;
 }
 
-#brackets-node-debugger-log .toolbar.bottom{
-	padding: 0;
-	clear: both;
-}
-
 #brackets-node-debugger-log a.icon {
 	margin: 0 10px;
-	color: #bbb;
 	font-size: 18px;
 }
 
-#brackets-node-debugger-log .toolbar.bottom a {
-	margin-left: 15px;
-	color: #bbb;
+#brackets-node-debugger-log .toolbar .main-grp {
+	border-right: 2px solid #bbb;
+	display: inline-block;
+	padding-right: 5px;
+	margin-right: 5px;
 }
 
-#brackets-node-debugger-log .toolbar.bottom a:hover {
-	color: #78B2F2;
+#brackets-node-debugger-log .toolbar .side-grp a.icon {
+	color: #444;
+	margin: 0 7px;
+	font-size: 16px;
 }
 
 #brackets-node-debugger-log a.removeBP:hover {
@@ -30,39 +28,40 @@
 	opacity: 0.4;
 }
 
-#brackets-node-debugger-log a.active {
-	color: #78B2F2;
+#brackets-node-debugger-log a.ion-power {
+	color: #91CC41;
+	opacity: 1;
 }
 
-#brackets-node-debugger-log a.ion-ios7-close {
+#brackets-node-debugger-log a.ion-stop {
 	color: #F74687;
 }
 
-#brackets-node-debugger-log a.ion-ios7-checkmark {
-	color: #91CC41;
-}
-
 #brackets-node-debugger-input {
-	display: block;
+	display: inline-block;
 	min-width: 50%;
 	height: 20px;
 	max-height: 20px;
-	margin-left: 5px;
+	margin-left: -3px;
+	margin-top: -3px;
 	border: 0;
 	background: transparent;
-	float: left;
 }
 
 #brackets-node-debugger-input .suggestion {
 	color: #822;
 }
 
+#brackets-node-debugger-input:focus{
+	outline: none;
+}
+
 .input-indicator {
-	content: ">>";
-	display: block;
-	height: 20px;
-	float: left;
-	color: #822;
+	display: inline-block;
+	color: #78B2F2;
+	padding-top: 3px;
+	font-size: 12px;
+	margin: 0 5px;
 }
 
 .node-debugger-highlight {
@@ -86,6 +85,9 @@
 	float: left;
 	width: 75%;
 	overflow-y: scroll;
+	padding: 5px;
+	box-sizing: border-box;
+	background: #eee;
 }
 
 #brackets-node-debugger-wrapper #brackets-node-debugger-sidebar {
@@ -107,6 +109,10 @@
 .brackets-node-debugger-log span.object ~ .var{
 	display: block;
 	padding-left: 10px;
+}
+
+.brackets-node-debugger-log .input-indicator {
+	color: #888;
 }
 
 #status-bar #node-debugger-indicator.ion-android-developer {

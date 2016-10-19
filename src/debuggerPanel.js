@@ -34,7 +34,7 @@ define(function (require, exports) {
 			if(com.length > 0) {
 				history.push(com);
 				historyCurrent = history.length;
-				debuggerPanel.log( $('<span>').text('>> ' + com) );
+				debuggerPanel.log( $('<span>').html('<i class="icon ion-chevron-right input-indicator"></i>' + com) );
 				_nodeDebuggerDomain.exec('eval', com);
 				//reset the input field
 				debuggerPanel.$debuggerInput.val('');
@@ -91,8 +91,8 @@ define(function (require, exports) {
 		//Make sure the content size is always ok
 		$(PanelManager).on('editorAreaResize', function() {
 			var height = debuggerPanel.$logPanel.height();
-			debuggerPanel.$debuggerContent.height(height - 50);
-			debuggerPanel.$debuggerSideBar.height(height - 50);
+			debuggerPanel.$debuggerContent.height(height - 40);
+			debuggerPanel.$debuggerSideBar.height(height - 40);
 		});
 
 		//TODO: Make the sidebox resizeable
@@ -115,19 +115,19 @@ define(function (require, exports) {
 		debuggerPanel.$debuggerInput.on('keyup', onKeyDown);
 
 		//Add help button
-		var $help = $('<a>').addClass('ion-help-circled info')
+		var $help = $('<a>').addClass('icon ion-help info')
 			.attr('href', 'https://github.com/TheBenji/brackets-node-debugger#how-to-use-it')
 			.attr('title', 'Help!');
 
 		//Add clear console button
-		var $clear = $('<a>').addClass('ion-trash-b clear').attr('href', '#').attr('title', 'Clear console');
+		var $clear = $('<a>').addClass('icon ion-trash-b clear').attr('href', '#').attr('title', 'Clear console');
 
+		debuggerPanel.addControlElement($help, false, function(){});
 		debuggerPanel.addControlElement($clear, false, function() {
 			debuggerPanel.$debuggerContent.html($('#brackets-node-debugger-input-wrapper'));
 			//set the keyHandler again
 			debuggerPanel.$debuggerInput.on('keydown', onKeyDown);
 		});
-		debuggerPanel.addControlElement($help, false, function(){});
 
 		//Add close button
 		var $close = $('<a>').addClass('close').attr('href', '#').html('&times;');
@@ -165,15 +165,15 @@ define(function (require, exports) {
 	* Adds a new element to the debugger panel
 	*
 	* @param {jQuery Element} The jQuery element that will be added to the panel
-	* @param {boolean} If true element will be in the top row, false: bottom row
+	* @param {boolean} If true element will be in the main group, false: side group
 	* @param {function} clickHandler
 	**/
-	debuggerPanel.addControlElement = function($el, top, clickHandler) {
+	debuggerPanel.addControlElement = function($el, main, clickHandler) {
 		var $t = $(null);
-		if(top) {
-			$t = debuggerPanel.$logPanel.find('.toolbar.top');
+		if(main) {
+			$t = debuggerPanel.$logPanel.find('.toolbar.top .main-grp');
 		} else {
-			$t = debuggerPanel.$logPanel.find('.toolbar.bottom');
+			$t = debuggerPanel.$logPanel.find('.toolbar.top .side-grp');
 		}
 
 		$el.prependTo($t).on('click', clickHandler);
